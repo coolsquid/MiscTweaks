@@ -1,0 +1,14 @@
+[{
+  "modid": "misctweaks",
+  "name": "MiscTweaks",
+  "description": "",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["CoolSquid"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}]
