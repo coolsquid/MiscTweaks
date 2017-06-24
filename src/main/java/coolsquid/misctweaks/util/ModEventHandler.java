@@ -67,8 +67,8 @@ public class ModEventHandler {
 	public void onDrawScreen(GuiScreenEvent.DrawScreenEvent event) {
 		if (event.getGui() instanceof GuiCreateWorld) {
 			GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
-			if (!ConfigManager.forcedGamemode.isEmpty()) {
-				if (ConfigManager.forcedDifficulty.equals("HARDCORE")) {
+			if (!ConfigManager.forcedDifficulty.isEmpty()) {
+				if (ConfigManager.forcedDifficulty.equalsIgnoreCase("hardcore")) {
 					gui.btnGameMode.displayString = I18n.format("selectWorld.gameMode") + ": "
 							+ I18n.format("selectWorld.gameMode.hardcore");
 				} else {
