@@ -1,14 +1,19 @@
 package coolsquid.misctweaks.config;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-import coolsquid.misctweaks.MiscTweaks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.fml.client.IModGuiFactory;
-import net.minecraftforge.fml.client.config.*;
+import net.minecraftforge.fml.client.config.DummyConfigElement;
+import net.minecraftforge.fml.client.config.GuiConfig;
+import net.minecraftforge.fml.client.config.IConfigElement;
 import net.minecraftforge.fml.common.Loader;
+
+import coolsquid.misctweaks.MiscTweaks;
 
 public class ConfigGuiFactory implements IModGuiFactory {
 
@@ -17,17 +22,7 @@ public class ConfigGuiFactory implements IModGuiFactory {
 	}
 
 	@Override
-	public Class<? extends GuiScreen> mainConfigGuiClass() {
-		return ConfigManager.enableConfigGui ? Gui.class : null;
-	}
-
-	@Override
 	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
-		return null;
-	}
-
-	@Override
-	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
 		return null;
 	}
 
@@ -44,9 +39,8 @@ public class ConfigGuiFactory implements IModGuiFactory {
 	public static class Gui extends GuiConfig {
 
 		public Gui(GuiScreen parent) {
-			super(parent, getConfigElements(),
-					MiscTweaks.MODID, MiscTweaks.MODID, false, false, MiscTweaks.NAME + " configuration",
-					ConfigManager.CONFIG.getConfigFile().getAbsolutePath());
+			super(parent, getConfigElements(), MiscTweaks.MODID, MiscTweaks.MODID, false, false,
+					MiscTweaks.NAME + " configuration", ConfigManager.CONFIG.getConfigFile().getAbsolutePath());
 		}
 
 		private static List<IConfigElement> getConfigElements() {
