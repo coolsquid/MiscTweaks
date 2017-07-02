@@ -15,8 +15,6 @@ import coolsquid.misctweaks.config.ConfigManager;
 import coolsquid.misctweaks.util.BrandingTweaks;
 import coolsquid.misctweaks.util.ModEventHandler;
 
-import org.apache.commons.io.FileUtils;
-
 @Mod(modid = MiscTweaks.MODID, name = MiscTweaks.NAME, version = MiscTweaks.VERSION, dependencies = MiscTweaks.DEPENDENCIES, updateJSON = MiscTweaks.UPDATE_JSON, acceptableRemoteVersions = "*", guiFactory = "coolsquid.misctweaks.config.ConfigGuiFactory")
 public class MiscTweaks {
 
@@ -28,15 +26,6 @@ public class MiscTweaks {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		File oldConfig = new File("./config/coolsquid/misctweaks/MiscTweaks.cfg");
-		if (oldConfig.exists()) {
-			try {
-				FileUtils.moveFile(oldConfig, new File("./config/MiscTweaks.cfg"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		oldConfig.getParentFile().delete();
 		File squidDir = new File("./config/coolsquid");
 		if (squidDir.exists() && squidDir.list().length == 0) {
 			squidDir.delete();
