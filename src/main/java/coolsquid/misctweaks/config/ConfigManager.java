@@ -33,6 +33,8 @@ public class ConfigManager {
 
 	public static float drowningDamage = 1.0F;
 
+	public static boolean disableSleep = false;
+
 	public static boolean enableConfigGui;
 
 	public static void loadConfig() {
@@ -76,6 +78,9 @@ public class ConfigManager {
 
 		drowningDamage = CONFIG.getFloat("drowningDamage", "miscellaneous", drowningDamage, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by drowning.");
+
+		disableSleep = CONFIG.getBoolean("disableSleep", "miscellaneous", disableSleep,
+				"Disables all forms of beds and sleeping bags.");
 
 		Property enableConfigGui = CONFIG.get("general", "enableConfigGui", true);
 		enableConfigGui.setComment("Whether to enable the ingame config GUI.");

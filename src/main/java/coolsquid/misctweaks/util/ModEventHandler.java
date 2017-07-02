@@ -1,7 +1,5 @@
 package coolsquid.misctweaks.util;
 
-import coolsquid.misctweaks.MiscTweaks;
-import coolsquid.misctweaks.config.ConfigManager;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -9,13 +7,18 @@ import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.player.EntityPlayer.SleepResult;
+import net.minecraft.item.ItemBed;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -26,6 +29,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import coolsquid.misctweaks.MiscTweaks;
+import coolsquid.misctweaks.config.ConfigManager;
+
 import squeek.applecore.api.hunger.HealthRegenEvent;
 import squeek.applecore.api.hunger.StarvationEvent;
 
@@ -161,6 +168,22 @@ public class ModEventHandler {
 	public void onLivingHurt(LivingHurtEvent event) {
 		if (event.getSource() == DamageSource.DROWN && ConfigManager.drowningDamage != 1 && event.getAmount() != 1) {
 			event.setAmount(ConfigManager.drowningDamage);
+		}
+	}
+
+	@SubscribeEvent
+	public void onSleepCheck(PlayerSleepInBedEvent event) {
+		if (ConfigManager.disableSleep) {
+			event.getEntityPlayer().sendStatusMessage(new TextComponentString("Sleeping has been disabled"), true);
+			event.setResult(SleepResult.OTHER_PROBLEM);
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void onTooltip(ItemTooltipEvent event) {
+		if (event.getItemStack() != null && event.getItemStack().getItem() instanceof ItemBed) {
+			event.getToolTip().add("Unusable");
 		}
 	}
 }
