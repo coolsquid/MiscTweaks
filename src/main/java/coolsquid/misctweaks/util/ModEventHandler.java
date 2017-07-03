@@ -3,8 +3,13 @@ package coolsquid.misctweaks.util;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiOptionSlider;
 import net.minecraft.client.gui.GuiOptions;
+import net.minecraft.client.gui.GuiOptionsRowList;
+import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.GameSettings.Options;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
@@ -37,6 +42,15 @@ import squeek.applecore.api.hunger.HealthRegenEvent;
 import squeek.applecore.api.hunger.StarvationEvent;
 
 public class ModEventHandler {
+
+	@SubscribeEvent
+	public void onConfigChanged(OnConfigChangedEvent event) {
+		if (event.getModID().equals(MiscTweaks.MODID)) {
+			ConfigManager.CONFIG.save();
+			ConfigManager.loadConfig();
+			MiscTweaks.applyTweaks();
+		}
+	}
 
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event) {
@@ -101,12 +115,34 @@ public class ModEventHandler {
 				((GuiMainMenu) event.getGui()).realmsButton.visible = false;
 				((GuiMainMenu) event.getGui()).realmsNotification = null;
 				ReflectionHelper.setPrivateValue(GuiButton.class,
-						Util.getPrivateValue(GuiMainMenu.class, (GuiMainMenu) event.getGui(), "modButton"), 200,
-						"width");
+						ReflectionHelper.getPrivateValue(GuiMainMenu.class, (GuiMainMenu) event.getGui(), "modButton"),
+						200, "width");
 			}
 			if (ConfigManager.removeCopyrightText) {
 				((GuiMainMenu) event.getGui()).widthCopyright = 0;
 				((GuiMainMenu) event.getGui()).widthCopyrightRest = event.getGui().width + 1;
+			}
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void onGuiOpen(GuiScreenEvent.InitGuiEvent.Post event) {
+		if (event.getGui() instanceof GuiVideoSettings && ConfigManager.maxGamma < 1) {
+			GuiOptionsRowList list = ReflectionHelper.getPrivateValue(GuiVideoSettings.class,
+					(GuiVideoSettings) event.getGui(), 3);
+			if (list != null) {
+				GameSettings.Options[] options = ReflectionHelper.getPrivateValue(GuiVideoSettings.class, null, 4);
+				for (int i = 0; i < options.length; i++) {
+					if (options[i] == Options.GAMMA) {
+						boolean isEven = (float) i % 2 == 0;
+						GuiOptionsRowList.Row row = list.getListEntry(isEven ? i / 2 : (i - 1) / 2);
+						GuiOptionSlider slider = ReflectionHelper.getPrivateValue(GuiOptionsRowList.Row.class, row,
+								isEven ? 1 : 2);
+						ReflectionHelper.setPrivateValue(GuiOptionsRowList.Row.class, row,
+								new GammaSlider(slider.id, slider.x, slider.y), isEven ? 1 : 2);
+					}
+				}
 			}
 		}
 	}
@@ -133,15 +169,6 @@ public class ModEventHandler {
 	public void onStarve(StarvationEvent.Starve event) {
 		if (ConfigManager.hungerStarveDamage != 1.0F) {
 			event.starveDamage = ConfigManager.hungerStarveDamage;
-		}
-	}
-
-	@SubscribeEvent
-	public void onConfigChanged(OnConfigChangedEvent event) {
-		if (event.getModID().equals(MiscTweaks.MODID)) {
-			ConfigManager.CONFIG.save();
-			ConfigManager.loadConfig();
-			BrandingTweaks.updateBranding();
 		}
 	}
 

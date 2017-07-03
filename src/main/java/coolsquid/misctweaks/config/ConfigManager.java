@@ -13,6 +13,7 @@ public class ConfigManager {
 	public static String forcedDifficulty = "";
 	public static String forcedGamemode = "";
 	public static boolean disableCheats = false;
+	public static float maxGamma = 1;
 
 	public static boolean netherLavaPockets = true;
 
@@ -48,6 +49,7 @@ public class ConfigManager {
 				Pattern.compile("(?i)(|survival|creative|adventure|spectator)"));
 		disableCheats = CONFIG.getBoolean("disableCheats", "game_options", disableCheats,
 				"Forces cheats to be disabled.");
+		maxGamma = (float) CONFIG.getInt("maxGamma", "game_options", 100, 0, 100, "") / 100;
 
 		netherLavaPockets = CONFIG.getBoolean("netherLavaPockets", "world", netherLavaPockets,
 				"Set to false to disable the random lava pockets in the Nether.");

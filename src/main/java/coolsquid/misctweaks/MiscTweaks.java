@@ -3,6 +3,9 @@ package coolsquid.misctweaks;
 import java.io.File;
 import java.io.IOException;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.GameSettings.Options;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -10,6 +13,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 import coolsquid.misctweaks.config.ConfigManager;
 import coolsquid.misctweaks.util.BrandingTweaks;
@@ -37,7 +41,7 @@ public class MiscTweaks {
 	public void init(FMLInitializationEvent event) {
 		BrandingTweaks.oldBrandings = FMLCommonHandler.instance().getBrandings(true);
 		BrandingTweaks.oldBrandingsNoMc = FMLCommonHandler.instance().getBrandings(false);
-		BrandingTweaks.updateBranding();
+		applyTweaks();
 
 		Object handler = new ModEventHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
@@ -47,5 +51,15 @@ public class MiscTweaks {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) throws IOException {
 
+	}
+
+	public static void applyTweaks() {
+		BrandingTweaks.updateBranding();
+		if (FMLCommonHandler.instance().getSide() == Side.CLIENT && ConfigManager.maxGamma < 1) {
+			GameSettings.Options.GAMMA.setValueMax(ConfigManager.maxGamma);
+			if (ConfigManager.maxGamma < Minecraft.getMinecraft().gameSettings.gammaSetting) {
+				Minecraft.getMinecraft().gameSettings.setOptionFloatValue(Options.GAMMA, ConfigManager.maxGamma);
+			}
+		}
 	}
 }
