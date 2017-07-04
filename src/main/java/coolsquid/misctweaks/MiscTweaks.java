@@ -1,7 +1,5 @@
 package coolsquid.misctweaks;
 
-import java.io.File;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -27,10 +25,6 @@ public class MiscTweaks {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		File squidDir = new File("./config/coolsquid");
-		if (squidDir.exists() && squidDir.list().length == 0) {
-			squidDir.delete();
-		}
 		ConfigManager.loadConfig();
 	}
 
