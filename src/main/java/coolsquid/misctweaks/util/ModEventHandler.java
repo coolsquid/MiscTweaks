@@ -144,7 +144,8 @@ public class ModEventHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onTooltip(ItemTooltipEvent event) {
-		if (event.getItemStack() != null && event.getItemStack().getItem() instanceof ItemBed) {
+		if (ConfigManager.disableSleep && event.getItemStack() != null
+				&& event.getItemStack().getItem() instanceof ItemBed) {
 			event.getToolTip().add("Unusable");
 		}
 	}
