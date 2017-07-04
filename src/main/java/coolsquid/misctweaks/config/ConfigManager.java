@@ -52,13 +52,15 @@ public class ConfigManager {
 				"Forces the specified gamemode. Allows for survival, creative, adventure, spectator, and hardcore. Leave empty to disable.",
 				Pattern.compile("(?i)(|survival|creative|adventure|spectator|hardcore)"));
 		forcedWorldType = CONFIG.getInt("forcedWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
-				"");
+				"Forces a certain world type. 0 is default, 1 is superflat, 2 is large biomes, etc. Set to -1 to disable.");
 		disableCheats = CONFIG.getBoolean("disableCheats", "game_options", disableCheats,
 				"Forces cheats to be disabled.");
 		disableBonusChest = CONFIG.getBoolean("disableBonusChest", "game_options", disableBonusChest,
 				"Forces the bonus chest to be disabled.");
-		maxGamma = (float) CONFIG.getInt("maxGamma", "game_options", 100, 0, 100, "") / 100;
-		maxRenderDistance = CONFIG.getInt("maxRenderDistance", "game_options", 32, 2, 32, "");
+		maxGamma = (float) CONFIG.getInt("maxGamma", "game_options", 100, 0, 100, "Sets a maximum brightness level.")
+				/ 100;
+		maxRenderDistance = CONFIG.getInt("maxRenderDistance", "game_options", 32, 2, 32,
+				"Sets a maximum render distance.");
 
 		netherLavaPockets = CONFIG.getBoolean("netherLavaPockets", "world", netherLavaPockets,
 				"Set to false to disable the random lava pockets in the Nether.");
