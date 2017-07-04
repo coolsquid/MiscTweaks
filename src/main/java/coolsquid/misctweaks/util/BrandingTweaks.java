@@ -2,11 +2,12 @@ package coolsquid.misctweaks.util;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
-import coolsquid.misctweaks.config.ConfigManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+
+import coolsquid.misctweaks.config.ConfigManager;
+
+import com.google.common.collect.Lists;
 
 public class BrandingTweaks {
 
@@ -19,10 +20,13 @@ public class BrandingTweaks {
 			brandings.addAll(oldBrandings);
 			brandingsNoMC.addAll(oldBrandingsNoMc);
 		}
-		if (ConfigManager.branding.length != 0)
-			for (String branding : ConfigManager.branding)
+		if (ConfigManager.branding.length != 0) {
+			for (String branding : ConfigManager.branding) {
 				brandings.add(branding);
+			}
+		}
 		ReflectionHelper.setPrivateValue(FMLCommonHandler.class, FMLCommonHandler.instance(), brandings, "brandings");
-		ReflectionHelper.setPrivateValue(FMLCommonHandler.class, FMLCommonHandler.instance(), brandingsNoMC, "brandingsNoMC");
+		ReflectionHelper.setPrivateValue(FMLCommonHandler.class, FMLCommonHandler.instance(), brandingsNoMC,
+				"brandingsNoMC");
 	}
 }

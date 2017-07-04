@@ -3,6 +3,7 @@ package coolsquid.misctweaks.config;
 import java.io.File;
 import java.util.regex.Pattern;
 
+import net.minecraft.world.WorldType;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
@@ -12,8 +13,11 @@ public class ConfigManager {
 
 	public static String forcedDifficulty = "";
 	public static String forcedGamemode = "";
+	public static int forcedWorldType = -1;
 	public static boolean disableCheats = false;
+	public static boolean disableBonusChest = false;
 	public static float maxGamma = 1;
+	public static int maxRenderDistance = 32;
 
 	public static boolean netherLavaPockets = true;
 
@@ -42,14 +46,19 @@ public class ConfigManager {
 		CONFIG.load();
 
 		forcedDifficulty = CONFIG.getString("forcedDifficulty", "game_options", forcedDifficulty,
-				"Forces the specified difficulty. Allows for hardcore, hard, normal, easy or peaceful. Leave empty to disable.",
-				Pattern.compile("(?i)(|peaceful|easy|normal|hard|hardcore)"));
+				"Forces the specified difficulty. Allows for hard, normal, easy or peaceful. Leave empty to disable.",
+				Pattern.compile("(?i)(|peaceful|easy|normal|hard)"));
 		forcedGamemode = CONFIG.getString("forcedGamemode", "game_options", forcedGamemode,
-				"Forces the specified gamemode. Allows for survival, creative, adventure and spectator. Leave empty to disable.",
-				Pattern.compile("(?i)(|survival|creative|adventure|spectator)"));
+				"Forces the specified gamemode. Allows for survival, creative, adventure, spectator, and hardcore. Leave empty to disable.",
+				Pattern.compile("(?i)(|survival|creative|adventure|spectator|hardcore)"));
+		forcedWorldType = CONFIG.getInt("forcedWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
+				"");
 		disableCheats = CONFIG.getBoolean("disableCheats", "game_options", disableCheats,
 				"Forces cheats to be disabled.");
+		disableBonusChest = CONFIG.getBoolean("disableBonusChest", "game_options", disableBonusChest,
+				"Forces the bonus chest to be disabled.");
 		maxGamma = (float) CONFIG.getInt("maxGamma", "game_options", 100, 0, 100, "") / 100;
+		maxRenderDistance = CONFIG.getInt("maxRenderDistance", "game_options", 32, 2, 32, "");
 
 		netherLavaPockets = CONFIG.getBoolean("netherLavaPockets", "world", netherLavaPockets,
 				"Set to false to disable the random lava pockets in the Nether.");

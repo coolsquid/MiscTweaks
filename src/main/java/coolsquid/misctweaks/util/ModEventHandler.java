@@ -1,15 +1,6 @@
 package coolsquid.misctweaks.util;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiOptionSlider;
-import net.minecraft.client.gui.GuiOptions;
-import net.minecraft.client.gui.GuiOptionsRowList;
-import net.minecraft.client.gui.GuiVideoSettings;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.GameSettings.Options;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
@@ -31,7 +22,6 @@ import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -55,18 +45,19 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event) {
 		if (!ConfigManager.forcedDifficulty.isEmpty()) {
-			if (ConfigManager.forcedDifficulty.equalsIgnoreCase("hardcore")) {
+			event.getWorld().getWorldInfo()
+					.setDifficulty(EnumDifficulty.valueOf(ConfigManager.forcedDifficulty.toUpperCase()));
+		}
+		if (!ConfigManager.forcedGamemode.isEmpty()) {
+			if (ConfigManager.forcedGamemode.equalsIgnoreCase("hardcore")) {
 				event.getWorld().getWorldInfo().setGameType(GameType.SURVIVAL);
 				event.getWorld().getWorldInfo().setDifficulty(EnumDifficulty.HARD);
 				event.getWorld().getWorldInfo().setAllowCommands(false);
 				event.getWorld().getWorldInfo().setHardcore(true);
 			} else {
 				event.getWorld().getWorldInfo()
-						.setDifficulty(EnumDifficulty.valueOf(ConfigManager.forcedDifficulty.toUpperCase()));
+						.setGameType(GameType.valueOf(ConfigManager.forcedGamemode.toUpperCase()));
 			}
-		}
-		if (!ConfigManager.forcedGamemode.isEmpty()) {
-			event.getWorld().getWorldInfo().setGameType(GameType.valueOf(ConfigManager.forcedGamemode.toUpperCase()));
 		}
 		if (ConfigManager.disableCheats) {
 			event.getWorld().getWorldInfo().setAllowCommands(false);
@@ -85,65 +76,9 @@ public class ModEventHandler {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void onDrawScreen(GuiScreenEvent.DrawScreenEvent event) {
-		if (event.getGui() instanceof GuiCreateWorld) {
-			GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
-			if (!ConfigManager.forcedDifficulty.isEmpty()) {
-				if (ConfigManager.forcedDifficulty.equalsIgnoreCase("hardcore")) {
-					gui.btnGameMode.displayString = I18n.format("selectWorld.gameMode") + ": "
-							+ I18n.format("selectWorld.gameMode.hardcore");
-				} else {
-					gui.btnGameMode.displayString = I18n.format("selectWorld.gameMode") + ": "
-							+ I18n.format("selectWorld.gameMode." + ConfigManager.forcedGamemode.toLowerCase());
-				}
-				gui.btnGameMode.enabled = false;
-			}
-			if (ConfigManager.disableCheats) {
-				gui.btnAllowCommands.enabled = false;
-				gui.btnAllowCommands.displayString = I18n.format("selectWorld.allowCommands", new Object[0]) + ' '
-						+ I18n.format("options.off", new Object[0]);
-			}
-		} else if (event.getGui() instanceof GuiOptions && !ConfigManager.forcedDifficulty.isEmpty()) {
-			GuiButton b = ((GuiOptions) event.getGui()).difficultyButton;
-			if (b != null) {
-				b.enabled = false;
-				b.displayString = I18n.format("options.difficulty", new Object[0]) + ": " + I18n
-						.format("options.difficulty." + ConfigManager.forcedDifficulty.toLowerCase(), new Object[0]);
-			}
-		} else if (event.getGui() instanceof GuiMainMenu) {
-			if (ConfigManager.removeRealmsButton) {
-				((GuiMainMenu) event.getGui()).realmsButton.visible = false;
-				((GuiMainMenu) event.getGui()).realmsNotification = null;
-				ReflectionHelper.setPrivateValue(GuiButton.class,
-						ReflectionHelper.getPrivateValue(GuiMainMenu.class, (GuiMainMenu) event.getGui(), "modButton"),
-						200, "width");
-			}
-			if (ConfigManager.removeCopyrightText) {
-				((GuiMainMenu) event.getGui()).widthCopyright = 0;
-				((GuiMainMenu) event.getGui()).widthCopyrightRest = event.getGui().width + 1;
-			}
-		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onGuiOpen(GuiScreenEvent.InitGuiEvent.Post event) {
-		if (event.getGui() instanceof GuiVideoSettings && ConfigManager.maxGamma < 1) {
-			GuiOptionsRowList list = ReflectionHelper.getPrivateValue(GuiVideoSettings.class,
-					(GuiVideoSettings) event.getGui(), 3);
-			if (list != null) {
-				GameSettings.Options[] options = ReflectionHelper.getPrivateValue(GuiVideoSettings.class, null, 4);
-				for (int i = 0; i < options.length; i++) {
-					if (options[i] == Options.GAMMA) {
-						boolean isEven = (float) i % 2 == 0;
-						GuiOptionsRowList.Row row = list.getListEntry(isEven ? i / 2 : (i - 1) / 2);
-						GuiOptionSlider slider = ReflectionHelper.getPrivateValue(GuiOptionsRowList.Row.class, row,
-								isEven ? 1 : 2);
-						ReflectionHelper.setPrivateValue(GuiOptionsRowList.Row.class, row,
-								new GammaSlider(slider.id, slider.x, slider.y), isEven ? 1 : 2);
-					}
-				}
-			}
+	public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent.Post event) {
+		if (event.getGui() instanceof GuiCreateWorld && event.getButton().id == 2) {
+			OptionTweaks.updateGuiWorld((GuiCreateWorld) event.getGui());
 		}
 	}
 

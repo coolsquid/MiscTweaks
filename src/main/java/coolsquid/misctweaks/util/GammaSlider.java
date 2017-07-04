@@ -5,7 +5,10 @@ import net.minecraft.client.gui.GuiPageButtonList.GuiResponder;
 import net.minecraft.client.gui.GuiSlider;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings.Options;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GammaSlider extends GuiSlider {
 
 	public GammaSlider(int id, int x, int y) {

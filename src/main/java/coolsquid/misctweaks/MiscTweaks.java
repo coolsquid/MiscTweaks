@@ -1,11 +1,7 @@
 package coolsquid.misctweaks;
 
 import java.io.File;
-import java.io.IOException;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.GameSettings.Options;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -18,13 +14,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import coolsquid.misctweaks.config.ConfigManager;
 import coolsquid.misctweaks.util.BrandingTweaks;
 import coolsquid.misctweaks.util.ModEventHandler;
+import coolsquid.misctweaks.util.OptionTweaks;
 
 @Mod(modid = MiscTweaks.MODID, name = MiscTweaks.NAME, version = MiscTweaks.VERSION, dependencies = MiscTweaks.DEPENDENCIES, updateJSON = MiscTweaks.UPDATE_JSON, acceptableRemoteVersions = "*", guiFactory = "coolsquid.misctweaks.config.ConfigGuiFactory")
 public class MiscTweaks {
 
 	public static final String MODID = "misctweaks";
 	public static final String NAME = "MiscTweaks";
-	public static final String VERSION = "1.0.9";
+	public static final String VERSION = "1.1.0";
 	public static final String DEPENDENCIES = "required-after:forge@[14.21.1.2387,);after:AppleCore";
 	public static final String UPDATE_JSON = "https://coolsquid.me/api/version/misctweaks.json";
 
@@ -43,23 +40,26 @@ public class MiscTweaks {
 		BrandingTweaks.oldBrandingsNoMc = FMLCommonHandler.instance().getBrandings(false);
 		applyTweaks();
 
+		MinecraftForge.EVENT_BUS.register(new OptionTweaks.Listener());
 		Object handler = new ModEventHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
 		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
 	}
 
 	@EventHandler
-	public void postInit(FMLPostInitializationEvent event) throws IOException {
+	public void postInit(FMLPostInitializationEvent event) {
 
 	}
 
+	/**
+	 * Applies tweaks that have to be reapplied whenever their settings have
+	 * been changed.
+	 */
 	public static void applyTweaks() {
 		BrandingTweaks.updateBranding();
-		if (FMLCommonHandler.instance().getSide() == Side.CLIENT && ConfigManager.maxGamma < 1) {
-			GameSettings.Options.GAMMA.setValueMax(ConfigManager.maxGamma);
-			if (ConfigManager.maxGamma < Minecraft.getMinecraft().gameSettings.gammaSetting) {
-				Minecraft.getMinecraft().gameSettings.setOptionFloatValue(Options.GAMMA, ConfigManager.maxGamma);
-			}
+		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+			// unregisters itself for performance, must be reregistered if configs change
+			MinecraftForge.EVENT_BUS.register(new OptionTweaks.SettingsListener());
 		}
 	}
 }
