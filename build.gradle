@@ -31,6 +31,14 @@ sourceSets {
 	}
 }
 
+jar {
+    manifest {
+    	attributes 'FMLCorePlugin': 'coolsquid.misctweaks.asm.Transformer'
+    	attributes 'FMLCorePluginContainsFMLMod': 'true'
+        attributes 'FMLAT': 'MiscTweaks_at.cfg'
+    }
+}
+
 // set forge version and mappings
 minecraft {
 	version = project.mcVersion + "-" + project.forgeVersion
