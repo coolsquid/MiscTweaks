@@ -1,6 +1,5 @@
 package coolsquid.misctweaks.util;
 
-import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
@@ -9,7 +8,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameType;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -71,14 +69,6 @@ public class ModEventHandler {
 		}
 		if (!ConfigManager.forcedDifficulty.isEmpty() && event.getCommand().getName().equals("difficulty")) {
 			event.setCanceled(true);
-		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
-	public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent.Post event) {
-		if (event.getGui() instanceof GuiCreateWorld && event.getButton().id == 2) {
-			OptionTweaks.updateGuiWorld((GuiCreateWorld) event.getGui());
 		}
 	}
 

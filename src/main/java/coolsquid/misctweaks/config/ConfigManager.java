@@ -1,9 +1,12 @@
 package coolsquid.misctweaks.config;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.minecraft.world.WorldType;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
@@ -30,6 +33,8 @@ public class ConfigManager {
 
 	public static boolean removeRealmsButton = false;
 	public static boolean removeCopyrightText = false;
+
+	public static Set<ElementType> disabledOverlays;
 
 	public static int fireTickRate;
 	public static int tntFuseTime;
@@ -80,14 +85,18 @@ public class ConfigManager {
 		hungerStarveDamage = CONFIG.getFloat("starveDamage", "hunger", hungerStarveDamage, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by starvation.");
 
-		branding = CONFIG.getStringList("branding", "miscellaneous", branding,
-				"Changes the text in the lower left corner.");
-		retainOldBranding = CONFIG.getBoolean("brandingRetainOld", "miscellaneous", retainOldBranding,
+		branding = CONFIG.getStringList("branding", "client", branding, "Changes the text in the lower left corner.");
+		retainOldBranding = CONFIG.getBoolean("brandingRetainOld", "client", retainOldBranding,
 				"Whether to retain the old branding and append the new one, or to replace the old one completely.");
-		removeRealmsButton = CONFIG.getBoolean("removeRealmsButton", "miscellaneous", removeRealmsButton,
+		removeRealmsButton = CONFIG.getBoolean("removeRealmsButton", "client", removeRealmsButton,
 				"Removes the realms button from the main menu.");
-		removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", "miscellaneous", removeCopyrightText,
+		removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", "client", removeCopyrightText,
 				"Removes the copyright information from the main menu.");
+		disabledOverlays = new HashSet<>();
+		for (String overlay : CONFIG.getStringList("disabledOverlays", "client", new String[0],
+				"Disables the listed overlays.")) {
+			disabledOverlays.add(ElementType.valueOf(overlay.toUpperCase()));
+		}
 
 		drowningDamage = CONFIG.getFloat("drowningDamage", "miscellaneous", drowningDamage, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by drowning.");

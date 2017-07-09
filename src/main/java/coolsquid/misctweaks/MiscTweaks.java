@@ -11,6 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 import coolsquid.misctweaks.config.ConfigManager;
 import coolsquid.misctweaks.util.BrandingTweaks;
+import coolsquid.misctweaks.util.ClientEventHandler;
 import coolsquid.misctweaks.util.ModEventHandler;
 import coolsquid.misctweaks.util.OptionTweaks;
 
@@ -38,6 +39,10 @@ public class MiscTweaks {
 		Object handler = new ModEventHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
 		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
+
+		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+			MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
+		}
 	}
 
 	@EventHandler
@@ -46,8 +51,8 @@ public class MiscTweaks {
 	}
 
 	/**
-	 * Applies tweaks that have to be reapplied whenever their settings have
-	 * been changed.
+	 * Applies tweaks that have to be reapplied whenever their settings have been
+	 * changed.
 	 */
 	public static void applyTweaks() {
 		BrandingTweaks.updateBranding();

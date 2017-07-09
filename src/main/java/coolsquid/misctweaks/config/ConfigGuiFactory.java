@@ -51,6 +51,7 @@ public class ConfigGuiFactory implements IModGuiFactory {
 				list.add(createElement("hunger", "Hunger", "misctweaks.config.hunger"));
 			}
 			list.add(createElement("miscellaneous", "Miscellaneous", "misctweaks.config.miscellaneous"));
+			list.add(createElement("client", "Client", "misctweaks.config.client"));
 			return list;
 		}
 
