@@ -1,7 +1,6 @@
 package coolsquid.misctweaks.config;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -9,6 +8,8 @@ import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+
+import com.google.common.collect.ImmutableSet;
 
 public class ConfigManager {
 
@@ -92,11 +93,13 @@ public class ConfigManager {
 				"Removes the realms button from the main menu.");
 		removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", "client", removeCopyrightText,
 				"Removes the copyright information from the main menu.");
-		disabledOverlays = new HashSet<>();
+
+		ImmutableSet.Builder<ElementType> overlays = ImmutableSet.builder();
 		for (String overlay : CONFIG.getStringList("disabledOverlays", "client", new String[0],
 				"Disables the listed overlays.")) {
-			disabledOverlays.add(ElementType.valueOf(overlay.toUpperCase()));
+			overlays.add(ElementType.valueOf(overlay.toUpperCase()));
 		}
+		disabledOverlays = overlays.build();
 
 		drowningDamage = CONFIG.getFloat("drowningDamage", "miscellaneous", drowningDamage, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by drowning.");
