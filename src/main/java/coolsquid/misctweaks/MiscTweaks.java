@@ -51,8 +51,8 @@ public class MiscTweaks {
 	}
 
 	/**
-	 * Applies tweaks that have to be reapplied whenever their settings have been
-	 * changed.
+	 * Applies tweaks that have to be reapplied whenever their settings have
+	 * been changed.
 	 */
 	public static void applyTweaks() {
 		BrandingTweaks.updateBranding();
