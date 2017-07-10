@@ -115,8 +115,9 @@ public class OptionTweaks {
 				if (ConfigManager.removeRealmsButton) {
 					((GuiMainMenu) event.getGui()).realmsButton.visible = false;
 					((GuiMainMenu) event.getGui()).realmsNotification = null;
-					ReflectionHelper.setPrivateValue(GuiButton.class, ReflectionHelper.getPrivateValue(
-							GuiMainMenu.class, (GuiMainMenu) event.getGui(), "modButton"), 200, "width");
+					GuiButton modButton = ReflectionHelper.getPrivateValue(GuiMainMenu.class,
+							(GuiMainMenu) event.getGui(), "modButton");
+					modButton.width = 200;
 				}
 				if (ConfigManager.removeCopyrightText) {
 					((GuiMainMenu) event.getGui()).widthCopyright = 0;
