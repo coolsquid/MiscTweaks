@@ -93,8 +93,8 @@ public class ConfigManager {
 				"Whether to retain the old branding and append the new one, or to replace the old one completely.");
 		removeRealmsButton = CONFIG.getBoolean("removeRealmsButton", "client", removeRealmsButton,
 				"Removes the realms button from the main menu.");
-		removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", "client", removeCopyrightText,
-				"Removes the copyright information from the main menu.");
+		/*removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", "client", removeCopyrightText,
+				"Removes the copyright information from the main menu.");*/
 
 		ImmutableSet.Builder<ElementType> overlays = ImmutableSet.builder();
 		for (ElementType overlay : ElementType.values()) {

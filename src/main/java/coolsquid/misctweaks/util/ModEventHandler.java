@@ -64,10 +64,10 @@ public class ModEventHandler {
 
 	@SubscribeEvent
 	public void onCommand(CommandEvent event) {
-		if (!ConfigManager.forcedGamemode.isEmpty() && event.getCommand().getName().equals("gamemode")) {
+		if (!ConfigManager.forcedGamemode.isEmpty() && event.getCommand().getCommandName().equals("gamemode")) {
 			event.setCanceled(true);
 		}
-		if (!ConfigManager.forcedDifficulty.isEmpty() && event.getCommand().getName().equals("difficulty")) {
+		if (!ConfigManager.forcedDifficulty.isEmpty() && event.getCommand().getCommandName().equals("difficulty")) {
 			event.setCanceled(true);
 		}
 	}
@@ -118,7 +118,7 @@ public class ModEventHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onLivingHurt(LivingHurtEvent event) {
-		if (event.getSource() == DamageSource.DROWN && ConfigManager.drowningDamage != 1 && event.getAmount() != 1) {
+		if (event.getSource() == DamageSource.drown && ConfigManager.drowningDamage != 1 && event.getAmount() != 1) {
 			event.setAmount(ConfigManager.drowningDamage);
 		}
 	}
@@ -126,7 +126,7 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void onSleepCheck(PlayerSleepInBedEvent event) {
 		if (ConfigManager.disableSleep) {
-			event.getEntityPlayer().sendStatusMessage(new TextComponentString("Sleeping has been disabled"), true);
+			event.getEntityPlayer().addChatMessage(new TextComponentString("Sleeping has been disabled"));
 			event.setResult(SleepResult.OTHER_PROBLEM);
 		}
 	}

@@ -25,16 +25,6 @@ public class ConfigGuiFactory implements IModGuiFactory {
 		return null;
 	}
 
-	@Override
-	public boolean hasConfigGui() {
-		return ConfigManager.enableConfigGui;
-	}
-
-	@Override
-	public GuiScreen createConfigGui(GuiScreen parentScreen) {
-		return new Gui(parentScreen);
-	}
-
 	public static class Gui extends GuiConfig {
 
 		public Gui(GuiScreen parent) {
@@ -57,5 +47,16 @@ public class ConfigGuiFactory implements IModGuiFactory {
 		private static IConfigElement createElement(String category) {
 			return new ConfigElement(ConfigManager.CONFIG.getCategory(category));
 		}
+	}
+
+	@Override
+	public Class<? extends GuiScreen> mainConfigGuiClass() {
+		return Gui.class;
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+		return null;
 	}
 }

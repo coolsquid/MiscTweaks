@@ -57,7 +57,7 @@ public class OptionTweaks {
 			gui.selectedIndex = ConfigManager.forcedWorldType;
 			gui.btnMapType.enabled = false;
 			gui.btnMapType.displayString = I18n.format("selectWorld.mapType") + " "
-					+ I18n.format(WorldType.WORLD_TYPES[ConfigManager.forcedWorldType].getTranslationKey());
+					+ I18n.format(WorldType.WORLD_TYPES[ConfigManager.forcedWorldType].getTranslateName());
 			gui.btnCustomizeType.enabled = false;
 			gui.btnCustomizeType.displayString = I18n.format("selectWorld.customizeType");
 		}
@@ -118,10 +118,10 @@ public class OptionTweaks {
 					ReflectionHelper.setPrivateValue(GuiButton.class, ReflectionHelper.getPrivateValue(
 							GuiMainMenu.class, (GuiMainMenu) event.getGui(), "modButton"), 200, "width");
 				}
-				if (ConfigManager.removeCopyrightText) {
+				/*if (ConfigManager.removeCopyrightText) {
 					((GuiMainMenu) event.getGui()).widthCopyright = 0;
 					((GuiMainMenu) event.getGui()).widthCopyrightRest = event.getGui().width + 1;
-				}
+				}*/
 			} else if (event.getGui() instanceof GuiVideoSettings && ConfigManager.maxGamma < 1) {
 				GuiOptionsRowList list = ReflectionHelper.getPrivateValue(GuiVideoSettings.class,
 						(GuiVideoSettings) event.getGui(), 3);
@@ -134,7 +134,7 @@ public class OptionTweaks {
 							GuiOptionSlider slider = ReflectionHelper.getPrivateValue(GuiOptionsRowList.Row.class, row,
 									isEven ? 1 : 2);
 							ReflectionHelper.setPrivateValue(GuiOptionsRowList.Row.class, row,
-									new GammaSlider(slider.id, slider.x, slider.y), isEven ? 1 : 2);
+									new GammaSlider(slider.id, slider.xPosition, slider.yPosition), isEven ? 1 : 2);
 						}
 					}
 				}
