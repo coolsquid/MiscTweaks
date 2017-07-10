@@ -41,6 +41,7 @@ public class OptionTweaks {
 			gui.btnGameMode.enabled = false;
 		}
 		if (ConfigManager.disableCheats) {
+			gui.inMoreWorldOptionsDisplay = false;
 			gui.allowCheats = false;
 			gui.allowCheatsWasSetByUser = true;
 			gui.btnAllowCommands.enabled = false;
@@ -98,6 +99,14 @@ public class OptionTweaks {
 	}
 
 	public static class Listener {
+
+		@SideOnly(Side.CLIENT)
+		@SubscribeEvent
+		public void onGuiInit(GuiScreenEvent.ActionPerformedEvent.Post event) {
+			if (event.getGui() instanceof GuiCreateWorld && event.getButton().id == 3) {
+				OptionTweaks.updateGuiWorld((GuiCreateWorld) event.getGui());
+			}
+		}
 
 		@SideOnly(Side.CLIENT)
 		@SubscribeEvent
