@@ -98,8 +98,8 @@ public class ConfigManager {
 
 		ImmutableSet.Builder<ElementType> overlays = ImmutableSet.builder();
 		for (ElementType overlay : ElementType.values()) {
-			if (overlay != ElementType.ALL && !CONFIG.getBoolean(overlay.name().toLowerCase(), "client.overlays", true,
-					"Set to false to disable the overlay.")) {
+			if (overlay != ElementType.ALL && CONFIG.getBoolean(overlay.name().toLowerCase(),
+					"client.disabled_overlays", false, "Set to true to disable the overlay.")) {
 				overlays.add(overlay);
 			}
 		}
