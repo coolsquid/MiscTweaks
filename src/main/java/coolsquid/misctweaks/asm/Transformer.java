@@ -2,11 +2,18 @@ package coolsquid.misctweaks.asm;
 
 import java.util.Map;
 
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
-
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public class Transformer implements IClassTransformer, IFMLLoadingPlugin {
 
@@ -14,11 +21,10 @@ public class Transformer implements IClassTransformer, IFMLLoadingPlugin {
 	public byte[] transform(String name, String transformedName, byte[] basicClass) {
 		if (transformedName.equals("net.minecraft.block.BlockFire")) {
 			ClassNode c = createClassNode(basicClass);
-			MethodNode m = getMethod(c, "tickRate", "(Lnet/minecraft/world/World;)I", "a", "(Lams;)I");
+			MethodNode m = this.getMethod(c, "tickRate", "(Lnet/minecraft/world/World;)I", "a", "(Lamu;)I");
 			InsnList toInject = new InsnList();
-			toInject.add(
-					new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(Hooks.class), "getFireTick",
-							"()I", false));
+			toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(Hooks.class), "getFireTick",
+					"()I", false));
 			toInject.add(new InsnNode(Opcodes.IRETURN));
 			m.instructions.insertBefore(m.instructions.getFirst(), toInject);
 			return toBytes(c);
