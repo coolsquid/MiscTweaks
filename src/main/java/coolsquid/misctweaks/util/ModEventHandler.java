@@ -80,7 +80,7 @@ public class ModEventHandler {
 		}
 	}
 
-	@Method(modid = "AppleCore")
+	@Method(modid = "applecore")
 	@SubscribeEvent
 	public void onHealthRegen(HealthRegenEvent.Regen event) {
 		if (ConfigManager.hungerHealthRegen != 1.0F || ConfigManager.hungerExhaustionRegen != 3.0F) {
