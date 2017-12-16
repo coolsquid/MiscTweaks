@@ -10,6 +10,7 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameType;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
@@ -27,7 +28,6 @@ import coolsquid.misctweaks.MiscTweaks;
 import coolsquid.misctweaks.config.ConfigManager;
 
 import squeek.applecore.api.hunger.HealthRegenEvent;
-import squeek.applecore.api.hunger.StarvationEvent;
 
 public class ModEventHandler {
 
@@ -89,11 +89,17 @@ public class ModEventHandler {
 		}
 	}
 
-	@Method(modid = "AppleCore")
 	@SubscribeEvent
-	public void onStarve(StarvationEvent.Starve event) {
-		if (ConfigManager.hungerStarveDamage != 1.0F) {
-			event.starveDamage = ConfigManager.hungerStarveDamage;
+	public void onStarve(LivingAttackEvent event) {
+		if (event.getSource() == DamageSource.STARVE && ConfigManager.hungerStarveDamage == 0) {
+			event.setCanceled(true);
+		}
+	}
+
+	@SubscribeEvent
+	public void onStarve(LivingHurtEvent event) {
+		if (event.getSource() == DamageSource.STARVE && ConfigManager.hungerStarveDamage != 1F) {
+			event.setAmount(ConfigManager.hungerStarveDamage);
 		}
 	}
 

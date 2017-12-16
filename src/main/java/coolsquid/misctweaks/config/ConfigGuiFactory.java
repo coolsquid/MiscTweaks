@@ -10,7 +10,6 @@ import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.fml.client.IModGuiFactory;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.IConfigElement;
-import net.minecraftforge.fml.common.Loader;
 
 import coolsquid.misctweaks.MiscTweaks;
 
@@ -46,9 +45,7 @@ public class ConfigGuiFactory implements IModGuiFactory {
 			List<IConfigElement> list = new ArrayList<>();
 			list.add(createElement("game_options"));
 			list.add(createElement("world"));
-			if (Loader.isModLoaded("AppleCore")) {
-				list.add(createElement("hunger"));
-			}
+			list.add(createElement("hunger"));
 			list.add(createElement("client"));
 			list.add(createElement("miscellaneous"));
 			return list;

@@ -81,9 +81,9 @@ public class ConfigManager {
 				"The approximate radius of creeper explosions.");
 
 		hungerHealthRegen = CONFIG.getFloat("healthRegen", "hunger", hungerHealthRegen, Float.MIN_VALUE,
-				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar.");
+				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar. Requires AppleCore.");
 		hungerExhaustionRegen = CONFIG.getFloat("exhaustionRegen", "hunger", hungerExhaustionRegen, Float.MIN_VALUE,
-				Float.MAX_VALUE, "The amount of exhaustion regen from having a full hunger bar.");
+				Float.MAX_VALUE, "The amount of exhaustion regen from having a full hunger bar. Requires AppleCore.");
 		hungerStarveDamage = CONFIG.getFloat("starveDamage", "hunger", hungerStarveDamage, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by starvation.");
 
