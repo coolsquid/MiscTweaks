@@ -12,9 +12,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GammaSlider extends GuiSlider {
 
 	public GammaSlider(int id, int x, int y) {
-		super(new Responder(), id, x, y, I18n.format(Options.GAMMA.getEnumString()) + ": ", Options.GAMMA.getValueMin(),
-				Options.GAMMA.getValueMax(), Minecraft.getMinecraft().gameSettings.getOptionFloatValue(Options.GAMMA),
-				new Formatter());
+		super(new Responder(), id, x, y, I18n.format(Options.GAMMA.getTranslation()) + ": ",
+				Options.GAMMA.getValueMin(), Options.GAMMA.getValueMax(),
+				Minecraft.getMinecraft().gameSettings.getOptionFloatValue(Options.GAMMA), new Formatter());
 	}
 
 	public static class Responder implements GuiResponder {
