@@ -13,6 +13,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerSetSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -143,6 +144,13 @@ public class ModEventHandler {
 		if (ConfigManager.disableSleep && event.getItemStack() != null
 				&& event.getItemStack().getItem() instanceof ItemBed) {
 			event.getToolTip().add("Unusable");
+		}
+	}
+
+	@SubscribeEvent
+	public void onSpawnSet(PlayerSetSpawnEvent event) {
+		if (ConfigManager.preventPlayerSpawnChange || !event.isForced() && ConfigManager.preventPlayerBedSpawnChange) {
+			event.setCanceled(true);
 		}
 	}
 }

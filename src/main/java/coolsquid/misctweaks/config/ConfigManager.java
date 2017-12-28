@@ -46,6 +46,8 @@ public class ConfigManager {
 	public static float drowningDamage = 1.0F;
 
 	public static boolean disableSleep = false;
+	public static boolean preventPlayerSpawnChange = false;
+	public static boolean preventPlayerBedSpawnChange = false;
 
 	public static boolean enableConfigGui;
 
@@ -87,7 +89,6 @@ public class ConfigManager {
 		hungerStarveDamage = CONFIG.getFloat("starveDamage", "hunger", hungerStarveDamage, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by starvation.");
 
-		move("miscellaneous", "client", "branding", "brandingRetainOld", "removeRealmsButton", "removeCopyrightText");
 		branding = CONFIG.getStringList("branding", "client", branding, "Changes the text in the lower left corner.");
 		retainOldBranding = CONFIG.getBoolean("brandingRetainOld", "client", retainOldBranding,
 				"Whether to retain the old branding and append the new one, or to replace the old one completely.");
@@ -110,6 +111,10 @@ public class ConfigManager {
 
 		disableSleep = CONFIG.getBoolean("disableSleep", "miscellaneous", disableSleep,
 				"Disables all forms of beds and sleeping bags.");
+		preventPlayerSpawnChange = CONFIG.getBoolean("preventPlayerSpawnChange", "miscellaneous", false,
+				"Prevents players from setting new spawn points (with or without beds). This will completely disable custom player spawns, so all players will spawn at the world's spawn point.");
+		preventPlayerBedSpawnChange = CONFIG.getBoolean("preventPlayerBedSpawnChange", "miscellaneous", false,
+				"Prevents players from setting new spawn points with beds.");
 
 		Property enableConfigGui = CONFIG.get("general", "enableConfigGui", true);
 		enableConfigGui.setComment("Whether to enable the ingame config GUI.");
@@ -125,12 +130,6 @@ public class ConfigManager {
 
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
-		}
-	}
-
-	private static void move(String oldCategory, String newCategory, String... options) {
-		for (String option : options) {
-			CONFIG.moveProperty(oldCategory, option, newCategory);
 		}
 	}
 }
