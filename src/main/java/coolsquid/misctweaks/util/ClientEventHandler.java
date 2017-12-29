@@ -1,7 +1,10 @@
 package coolsquid.misctweaks.util;
 
 import net.minecraft.client.gui.GuiCreateWorld;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,6 +27,24 @@ public class ClientEventHandler {
 	public void onRenderOverlay(RenderGameOverlayEvent.Pre event) {
 		if (ConfigManager.disabledOverlays.contains(event.getType())) {
 			event.setCanceled(true);
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void onGuiOpen(InitGuiEvent.Post event) {
+		if (event.getGui() instanceof GuiCreateWorld) {
+			GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
+			if (ConfigManager.defaultWorldType != -1) {
+				gui.selectedIndex = ConfigManager.defaultWorldType;
+				System.out.println(WorldType.WORLD_TYPES[ConfigManager.defaultWorldType]);
+				System.out.println(gui.btnMapType);
+				gui.btnMapType.displayString = I18n.format("selectWorld.mapType") + " "
+						+ I18n.format(WorldType.WORLD_TYPES[ConfigManager.defaultWorldType].getTranslationKey());
+			}
+			if (!ConfigManager.defaultChunkProviderSettings.isEmpty()) {
+				gui.chunkProviderSettingsJson = ConfigManager.defaultChunkProviderSettings;
+			}
 		}
 	}
 }

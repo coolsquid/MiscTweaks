@@ -61,6 +61,11 @@ public class OptionTweaks {
 			gui.btnCustomizeType.enabled = false;
 			gui.btnCustomizeType.displayString = I18n.format("selectWorld.customizeType");
 		}
+		if (!ConfigManager.forcedChunkProviderSettings.isEmpty()) {
+			gui.btnCustomizeType.enabled = false;
+			gui.btnCustomizeType.displayString = I18n.format("selectWorld.customizeType");
+			gui.chunkProviderSettingsJson = ConfigManager.forcedChunkProviderSettings;
+		}
 	}
 
 	private static void setOptions() {

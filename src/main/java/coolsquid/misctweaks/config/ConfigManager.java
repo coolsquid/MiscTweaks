@@ -19,6 +19,9 @@ public class ConfigManager {
 	public static String forcedDifficulty = "";
 	public static String forcedGamemode = "";
 	public static int forcedWorldType = -1;
+	public static String forcedChunkProviderSettings = "";
+	public static int defaultWorldType = -1;
+	public static String defaultChunkProviderSettings = "";
 	public static boolean disableCheats = false;
 	public static boolean disableBonusChest = false;
 	public static float maxGamma = 1;
@@ -62,6 +65,12 @@ public class ConfigManager {
 				Pattern.compile("(?i)(|survival|creative|adventure|spectator|hardcore)"));
 		forcedWorldType = CONFIG.getInt("forcedWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
 				"Forces a certain world type. 0 is default, 1 is superflat, 2 is large biomes, etc. Set to -1 to disable.");
+		forcedChunkProviderSettings = CONFIG.getString("forcedChunkProviderSettings", "game_options", "",
+				"Forces a certain chunk provider settings JSON.");
+		defaultWorldType = CONFIG.getInt("defaultWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
+				"Sets a default (initially selected) world type. 0 is default, 1 is superflat, 2 is large biomes, etc. Set to -1 to disable.");
+		defaultChunkProviderSettings = CONFIG.getString("defaultChunkProviderSettings", "game_options", "",
+				"Sets a default chunk provider settings JSON.");
 		disableCheats = CONFIG.getBoolean("disableCheats", "game_options", disableCheats,
 				"Forces cheats to be disabled.");
 		disableBonusChest = CONFIG.getBoolean("disableBonusChest", "game_options", disableBonusChest,
