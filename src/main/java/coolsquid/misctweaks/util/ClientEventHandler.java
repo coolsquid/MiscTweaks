@@ -37,8 +37,6 @@ public class ClientEventHandler {
 			GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
 			if (ConfigManager.defaultWorldType != -1) {
 				gui.selectedIndex = ConfigManager.defaultWorldType;
-				System.out.println(WorldType.WORLD_TYPES[ConfigManager.defaultWorldType]);
-				System.out.println(gui.btnMapType);
 				gui.btnMapType.displayString = I18n.format("selectWorld.mapType") + " "
 						+ I18n.format(WorldType.WORLD_TYPES[ConfigManager.defaultWorldType].getTranslationKey());
 			}
