@@ -2,7 +2,6 @@ package coolsquid.misctweaks.config;
 
 import java.io.File;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -59,10 +58,10 @@ public class ConfigManager {
 
 		forcedDifficulty = CONFIG.getString("forcedDifficulty", "game_options", forcedDifficulty,
 				"Forces the specified difficulty. Allows for hard, normal, easy or peaceful. Leave empty to disable.",
-				Pattern.compile("(?i)(|peaceful|easy|normal|hard)"));
+				new String[] { "peaceful", "easy", "normal", "hard" });
 		forcedGamemode = CONFIG.getString("forcedGamemode", "game_options", forcedGamemode,
 				"Forces the specified gamemode. Allows for survival, creative, adventure, spectator, and hardcore. Leave empty to disable.",
-				Pattern.compile("(?i)(|survival|creative|adventure|spectator|hardcore)"));
+				new String[] { "survival", "creative", "adventure", "spectator", "hardcore" });
 		forcedWorldType = CONFIG.getInt("forcedWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
 				"Forces a certain world type. 0 is default, 1 is superflat, 2 is large biomes, etc. Set to -1 to disable.");
 		forcedChunkProviderSettings = CONFIG.getString("forcedChunkProviderSettings", "game_options", "",
@@ -123,7 +122,7 @@ public class ConfigManager {
 		preventPlayerSpawnChange = CONFIG.getBoolean("preventPlayerSpawnChange", "miscellaneous", false,
 				"Prevents players from setting new spawn points (with or without beds). This will completely disable custom player spawns, so all players will spawn at the world's spawn point.");
 		preventPlayerBedSpawnChange = CONFIG.getBoolean("preventPlayerBedSpawnChange", "miscellaneous", false,
-				"Prevents players from setting new spawn points with beds.");
+				"Prevents players from setting new spawn points with beds. This might also affect some other spawn-setting methods.");
 
 		Property enableConfigGui = CONFIG.get("general", "enableConfigGui", true);
 		enableConfigGui.setComment("Whether to enable the ingame config GUI.");
