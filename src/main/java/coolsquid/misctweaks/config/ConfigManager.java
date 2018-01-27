@@ -1,13 +1,27 @@
 package coolsquid.misctweaks.config;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+
+import coolsquid.misctweaks.MiscTweaks;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -139,5 +153,55 @@ public class ConfigManager {
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
 		}
+		// Hidden test for the new event handler.
+		{
+			for (Object e : HANDLERS) {
+				MinecraftForge.EVENT_BUS.unregister(e);
+			}
+			if (CONFIG.getBoolean("explodingArrows", "secret", false, "")) {
+				register(ProjectileImpactEvent.Arrow.class, (e) -> {
+					Vec3d pos = e.getRayTraceResult().hitVec;
+					e.getArrow().world.newExplosion(e.getArrow(), pos.x, pos.y, pos.z, 3, true, true);
+					e.getArrow().setDead();
+					if (e.getRayTraceResult().entityHit != null) {
+						e.getRayTraceResult().entityHit.setFire(20);
+					}
+				});
+			}
+			// The options are hidden, so don't save them
+			CONFIG.load();
+		}
+	}
+
+	private static final ArrayList<Object> HANDLERS = new ArrayList<>();
+
+	/** Experimental event handler. */
+	private static <E extends Event> void register(Class<E> c, EventHandler<E> handler) {
+		Object o = new Object() {
+
+			@SubscribeEvent
+			public void onEvent(Event event) {
+				handler.onEvent((E) event);
+			}
+		};
+		HANDLERS.add(o);
+		try {
+			Method method = EventBus.class.getDeclaredMethod("register", Class.class, Object.class, Method.class,
+					ModContainer.class);
+			method.setAccessible(true);
+			Method targetMethod = o.getClass().getMethod("onEvent", Event.class);
+			method.invoke(MinecraftForge.EVENT_BUS, c, o, targetMethod, Loader.instance().activeModContainer());
+			Map<Object, ModContainer> listenerOwners = ReflectionHelper.getPrivateValue(EventBus.class,
+					MinecraftForge.EVENT_BUS, "listenerOwners");
+			listenerOwners.put(o, Loader.instance().getIndexedModList().get(MiscTweaks.MODID));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@FunctionalInterface
+	public static interface EventHandler<E extends Event> {
+
+		void onEvent(E event);
 	}
 }
