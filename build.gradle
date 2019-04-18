@@ -46,9 +46,15 @@ minecraft {
 	mappings = project.mappings
 }
 
+repositories {
+	maven {
+		url "http://www.ryanliptak.com/maven/"
+	}
+}
 // include all files in /libs as dependencies
 dependencies {
 	compile fileTree(dir: "libs", include: "*.jar,*.zip")
+	deobfCompile "applecore:AppleCore:1.12.2-3.2.0+335.2dbab:api"
 }
 
 // update mcmod.info

@@ -1,5 +1,11 @@
 package coolsquid.misctweaks;
 
+import coolsquid.misctweaks.config.ConfigManager;
+import coolsquid.misctweaks.util.BrandingTweaks;
+import coolsquid.misctweaks.util.ClientEventHandler;
+import coolsquid.misctweaks.util.ModEventHandler;
+import coolsquid.misctweaks.util.OptionTweaks;
+import net.minecraft.block.BlockFalling;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -8,12 +14,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
-
-import coolsquid.misctweaks.config.ConfigManager;
-import coolsquid.misctweaks.util.BrandingTweaks;
-import coolsquid.misctweaks.util.ClientEventHandler;
-import coolsquid.misctweaks.util.ModEventHandler;
-import coolsquid.misctweaks.util.OptionTweaks;
 
 @Mod(modid = MiscTweaks.MODID, name = MiscTweaks.NAME, version = MiscTweaks.VERSION, dependencies = MiscTweaks.DEPENDENCIES, updateJSON = MiscTweaks.UPDATE_JSON, acceptableRemoteVersions = "*", guiFactory = "coolsquid.misctweaks.config.ConfigGuiFactory")
 public class MiscTweaks {
@@ -42,6 +42,10 @@ public class MiscTweaks {
 
 		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
 			MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
+		}
+		
+		if (ConfigManager.blocksFallInstantly) {
+			BlockFalling.fallInstantly = true;
 		}
 	}
 

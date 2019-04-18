@@ -3,9 +3,14 @@ package coolsquid.misctweaks.config;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
+import coolsquid.misctweaks.MiscTweaks;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -20,10 +25,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
-import coolsquid.misctweaks.MiscTweaks;
-
-import com.google.common.collect.ImmutableSet;
 
 public class ConfigManager {
 
@@ -58,12 +59,19 @@ public class ConfigManager {
 	public static int tntFuseTime;
 	public static int creeperFuseTime;
 	public static int creeperExplosionRadius;
+	
+	public static boolean blocksFallInstantly = false;
 
 	public static float drowningDamage = 1.0F;
 
 	public static boolean disableSleep = false;
 	public static boolean preventPlayerSpawnChange = false;
 	public static boolean preventPlayerBedSpawnChange = false;
+	
+	public static HashSet<String> disabledFireSources;
+	public static HashSet<String> newFireSources;
+	
+	public static int chestSize = 27;
 
 	public static boolean enableConfigGui;
 
@@ -97,12 +105,15 @@ public class ConfigManager {
 				"Set to false to disable the random lava pockets in the Nether.");
 		fireTickRate = CONFIG.getInt("fireTickRate", "world", 30, 0, Integer.MAX_VALUE,
 				"The number of world ticks for each fire tick. Decrease for fire to spread and burn faster.");
+		disabledFireSources = Sets.newHashSet(CONFIG.getStringList("fireSourcesDisabled", "world", new String[0], "A fire source is a block that sustains fire indefinitely. In Vanilla, netherrack and magma blocks are considered fire sources. To disable a fire source, add its block ID to the list."));
+		newFireSources = Sets.newHashSet(CONFIG.getStringList("fireSourcesNew", "world", new String[0], "A fire source is a block that sustains fire indefinitely. In Vanilla, netherrack and magma blocks are considered fire sources. To make a block a fire source, add its ID to the list."));
 		tntFuseTime = CONFIG.getInt("tntFuseTime", "world", 80, 0, Integer.MAX_VALUE,
 				"The fuse time of TNT, in ticks.");
 		creeperFuseTime = CONFIG.getInt("creeperFuseTime", "world", 30, 1, Integer.MAX_VALUE,
 				"The fuse time of creepers, in ticks. Has to be at least 1, as otherwise the creepers would explode immediately after spawning.");
 		creeperExplosionRadius = CONFIG.getInt("creeperExplosionRadius", "world", 3, 0, 64,
 				"The approximate radius of creeper explosions.");
+		blocksFallInstantly = CONFIG.getBoolean("blocksFallInstantly", "world", false, "If true, blocks like sand and gravel will instantly teleport to the bottom when falling.");
 
 		hungerHealthRegen = CONFIG.getFloat("healthRegen", "hunger", hungerHealthRegen, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar. Requires AppleCore.");
@@ -137,6 +148,8 @@ public class ConfigManager {
 				"Prevents players from setting new spawn points (with or without beds). This will completely disable custom player spawns, so all players will spawn at the world's spawn point.");
 		preventPlayerBedSpawnChange = CONFIG.getBoolean("preventPlayerBedSpawnChange", "miscellaneous", false,
 				"Prevents players from setting new spawn points with beds. This might also affect some other spawn-setting methods.");
+		
+		chestSize = CONFIG.getInt("chestSize", "world", 27, 9, 54, "Changes the number of slots in normal and trapped chests. Note that >27 doesn't work very well with double chests.");
 
 		Property enableConfigGui = CONFIG.get("general", "enableConfigGui", true);
 		enableConfigGui.setComment("Whether to enable the ingame config GUI.");

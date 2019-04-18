@@ -1,5 +1,7 @@
 package coolsquid.misctweaks.util;
 
+import coolsquid.misctweaks.MiscTweaks;
+import coolsquid.misctweaks.config.ConfigManager;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
@@ -24,10 +26,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import coolsquid.misctweaks.MiscTweaks;
-import coolsquid.misctweaks.config.ConfigManager;
-
 import squeek.applecore.api.hunger.HealthRegenEvent;
 
 public class ModEventHandler {

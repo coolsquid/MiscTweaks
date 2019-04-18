@@ -2,12 +2,11 @@ package coolsquid.misctweaks.util;
 
 import java.util.List;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import com.google.common.collect.Lists;
 
 import coolsquid.misctweaks.config.ConfigManager;
-
-import com.google.common.collect.Lists;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class BrandingTweaks {
 
