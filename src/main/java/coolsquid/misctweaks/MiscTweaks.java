@@ -5,7 +5,6 @@ import coolsquid.misctweaks.util.BrandingTweaks;
 import coolsquid.misctweaks.util.ClientEventHandler;
 import coolsquid.misctweaks.util.ModEventHandler;
 import coolsquid.misctweaks.util.OptionTweaks;
-import net.minecraft.block.BlockFalling;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -42,10 +41,6 @@ public class MiscTweaks {
 
 		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
 			MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
-		}
-		
-		if (ConfigManager.blocksFallInstantly) {
-			BlockFalling.fallInstantly = true;
 		}
 	}
 

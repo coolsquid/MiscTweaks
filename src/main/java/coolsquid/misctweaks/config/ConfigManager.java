@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import coolsquid.misctweaks.MiscTweaks;
+import net.minecraft.block.BlockFalling;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -114,6 +115,7 @@ public class ConfigManager {
 		creeperExplosionRadius = CONFIG.getInt("creeperExplosionRadius", "world", 3, 0, 64,
 				"The approximate radius of creeper explosions.");
 		blocksFallInstantly = CONFIG.getBoolean("blocksFallInstantly", "world", false, "If true, blocks like sand and gravel will instantly teleport to the bottom when falling.");
+		BlockFalling.fallInstantly = blocksFallInstantly;
 
 		hungerHealthRegen = CONFIG.getFloat("healthRegen", "hunger", hungerHealthRegen, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar. Requires AppleCore.");
