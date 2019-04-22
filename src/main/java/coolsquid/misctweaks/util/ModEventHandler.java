@@ -1,5 +1,7 @@
 package coolsquid.misctweaks.util;
 
+import java.util.Map.Entry;
+
 import coolsquid.misctweaks.MiscTweaks;
 import coolsquid.misctweaks.config.ConfigManager;
 import net.minecraft.entity.item.EntityTNTPrimed;
@@ -7,10 +9,13 @@ import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.item.ItemBed;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameType;
 import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.GameRuleChangeEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -68,6 +73,14 @@ public class ModEventHandler {
 		}
 		if (!ConfigManager.forcedDifficulty.isEmpty() && event.getCommand().getName().equals("difficulty")) {
 			event.setCanceled(true);
+		}
+		if (event.getCommand().getName().equals("gamerule")) {
+			String ruleName = event.getParameters()[0];
+			if (ConfigManager.forcedGameRules.contains(ruleName)) {
+				event.getSender().getServer().getWorld(0).getGameRules().setOrCreateGameRule(ruleName, ConfigManager.gameRules.get(ruleName));
+				event.setCanceled(true);
+				event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change this game rule.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
+			}
 		}
 	}
 
@@ -149,6 +162,36 @@ public class ModEventHandler {
 	public void onSpawnSet(PlayerSetSpawnEvent event) {
 		if (ConfigManager.preventPlayerSpawnChange || !event.isForced() && ConfigManager.preventPlayerBedSpawnChange) {
 			event.setCanceled(true);
+		}
+	}
+
+	@SubscribeEvent
+	public void onCreateSpawnPosition(WorldEvent.CreateSpawnPosition event) {
+		if (event.getWorld().provider.getDimension() == 0) {
+			for (Entry<String, String> e : ConfigManager.gameRules.entrySet()) {
+				event.getWorld().getGameRules().setOrCreateGameRule(e.getKey(), e.getValue());
+			}
+			if (ConfigManager.newWorldTime != -1) {
+				event.getWorld().setWorldTime(ConfigManager.newWorldTime);
+			}
+			if (!ConfigManager.newWorldWeather.isEmpty()) {
+				if (ConfigManager.newWorldWeather.equals("rain")) {
+					event.getWorld().getWorldInfo().setRaining(true);
+				} else if (ConfigManager.newWorldWeather.equals("thunder")) {
+					event.getWorld().getWorldInfo().setRaining(true);
+					event.getWorld().getWorldInfo().setThundering(true);
+				} else {
+					event.getWorld().getWorldInfo().setRaining(false);
+					event.getWorld().getWorldInfo().setThundering(false);
+				}
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onGameRuleChange(GameRuleChangeEvent event) {
+		if (ConfigManager.forcedGameRules.contains(event.getRuleName())) {
+			event.getRules().setOrCreateGameRule(event.getRuleName(), ConfigManager.gameRules.get(event.getRuleName()));
 		}
 	}
 }
