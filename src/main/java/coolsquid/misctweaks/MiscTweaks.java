@@ -5,6 +5,7 @@ import coolsquid.misctweaks.util.BrandingTweaks;
 import coolsquid.misctweaks.util.ClientEventHandler;
 import coolsquid.misctweaks.util.ModEventHandler;
 import coolsquid.misctweaks.util.OptionTweaks;
+import net.minecraft.block.BlockFalling;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -55,6 +56,7 @@ public class MiscTweaks {
 	 */
 	public static void applyTweaks() {
 		BrandingTweaks.updateBranding();
+		BlockFalling.fallInstantly = ConfigManager.blocksFallInstantly;
 		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
 			// unregisters itself for performance, must be reregistered if configs change
 			MinecraftForge.EVENT_BUS.register(new OptionTweaks.SettingsListener());
