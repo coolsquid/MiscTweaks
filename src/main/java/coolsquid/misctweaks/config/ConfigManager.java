@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import coolsquid.misctweaks.MiscTweaks;
-import net.minecraft.block.BlockFalling;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
