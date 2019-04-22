@@ -3,9 +3,11 @@ package coolsquid.misctweaks.config;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -41,6 +43,11 @@ public class ConfigManager {
 	public static boolean disableBonusChest = false;
 	public static float maxGamma = 1;
 	public static int maxRenderDistance = 32;
+	public static long newWorldTime;
+	public static String newWorldWeather;
+
+	public static Map<String, String> gameRules;
+	public static Set<String> forcedGameRules;
 
 	public static boolean netherLavaPockets = true;
 
@@ -73,6 +80,7 @@ public class ConfigManager {
 	public static HashSet<String> newFireSources;
 	
 	public static int chestSize = 27;
+	public static int enderChestSize = 27;
 
 	public static boolean enableConfigGui;
 
@@ -102,6 +110,24 @@ public class ConfigManager {
 		maxRenderDistance = CONFIG.getInt("maxRenderDistance", "game_options", 32, 2, 32,
 				"Sets a maximum render distance.");
 
+		newWorldTime = CONFIG.getInt("newWorldTime", "game_options", -1, -1, 24000, "The starting time of newly created worlds. Can be combined with \"doDaylightCycle false\" in the \"gameRules\" option to indefinitely stay at the specified time.");
+		newWorldWeather = CONFIG.getString("newWorldWeather", "game_options", "", "The starting weather of newly created worlds. Either \"clear\", \"rain\" or \"thunder\". Can be combined with \\\"doWeatherCycle false\\\" in the \\\"gameRules\\\" option to indefinitely retain the specified weather.");
+
+		{
+			gameRules = new HashMap<>();
+			forcedGameRules = new HashSet<>();
+			Property prop = CONFIG.get("game_options", "gameRules", new String[0]);
+			prop.setValidationPattern(Pattern.compile("^\\s*\\w+\\s+[\\w\\d]+(\\s+force|)\\s*$"));
+			prop.setComment("Sets the default value of any game rule. To prevent players from changing the rule in-game, add \"force\" after the value. Format: naturalRegeneration false force");
+			for (String a : prop.getStringList()) {
+				String[] b = a.split("\\s+");
+				gameRules.put(b[0], b[1]);
+				if (b.length > 2) {
+					forcedGameRules.add(b[0]);
+				}
+			}
+		}
+
 		netherLavaPockets = CONFIG.getBoolean("netherLavaPockets", "world", netherLavaPockets,
 				"Set to false to disable the random lava pockets in the Nether.");
 		fireTickRate = CONFIG.getInt("fireTickRate", "world", 30, 0, Integer.MAX_VALUE,
@@ -115,7 +141,6 @@ public class ConfigManager {
 		creeperExplosionRadius = CONFIG.getInt("creeperExplosionRadius", "world", 3, 0, 64,
 				"The approximate radius of creeper explosions.");
 		blocksFallInstantly = CONFIG.getBoolean("blocksFallInstantly", "world", false, "If true, blocks like sand and gravel will instantly teleport to the bottom when falling.");
-		BlockFalling.fallInstantly = blocksFallInstantly;
 
 		hungerHealthRegen = CONFIG.getFloat("healthRegen", "hunger", hungerHealthRegen, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar. Requires AppleCore.");
@@ -152,6 +177,7 @@ public class ConfigManager {
 				"Prevents players from setting new spawn points with beds. This might also affect some other spawn-setting methods.");
 		
 		chestSize = CONFIG.getInt("chestSize", "world", 27, 9, 54, "Changes the number of slots in normal and trapped chests. Note that >27 doesn't work very well with double chests.");
+		enderChestSize = CONFIG.getInt("enderChestSize", "world", 27, 9, 54, "Changes the number of slots in ender chests.");
 
 		Property enableConfigGui = CONFIG.get("general", "enableConfigGui", true);
 		enableConfigGui.setComment("Whether to enable the ingame config GUI.");

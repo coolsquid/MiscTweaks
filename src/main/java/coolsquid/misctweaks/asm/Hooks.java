@@ -24,4 +24,8 @@ public class Hooks {
 	public static int getChestSize() {
 		return ConfigManager.chestSize;
 	}
+
+	public static int getEnderChestSize() {
+		return ConfigManager.enderChestSize;
+	}
 }

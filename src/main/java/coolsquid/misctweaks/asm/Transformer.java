@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 public class Transformer implements IClassTransformer, IFMLLoadingPlugin {
 
-	private static boolean fireTickRateHook = true, fireSourceHook = true, chestSizeHook = true;
+	private static boolean fireTickRateHook = true, fireSourceHook = true, chestSizeHook = true, enderChestSizeHook = true;
 
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] basicClass) {
@@ -82,6 +82,29 @@ public class Transformer implements IClassTransformer, IFMLLoadingPlugin {
 			}
 			return toBytes(c);
 		}
+		else if (transformedName.equals("net.minecraft.inventory.InventoryEnderChest")) {
+			ClassNode c = createClassNode(basicClass);
+			if (enderChestSizeHook) {
+				for (MethodNode m : c.methods) {
+					if (m.name.equals("<init>")) {
+						for (int i = 0; i < m.instructions.size(); i++) {
+							AbstractInsnNode n = m.instructions.get(i);
+							if (n instanceof IntInsnNode) {
+								if (((IntInsnNode) n).operand == 27) {
+									InsnList toInject = new InsnList();
+									toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(Hooks.class), "getEnderChestSize",
+											"()I", false));
+									//toInject.add(new InsnNode(Opcodes.ILOAD));
+									m.instructions.insertBefore(n, toInject);
+									m.instructions.remove(n);
+								}
+							}
+						}
+					}
+				}
+			}
+			return toBytes(c);
+		}
 		return basicClass;
 	}
 
@@ -121,6 +144,7 @@ public class Transformer implements IClassTransformer, IFMLLoadingPlugin {
 		fireTickRateHook = Boolean.parseBoolean(properties.getProperty("fireTickRateHook", "true"));
 		fireSourceHook = Boolean.parseBoolean(properties.getProperty("fireSourceHook", "true"));
 		chestSizeHook = Boolean.parseBoolean(properties.getProperty("chestSizeHook", "true"));
+		enderChestSizeHook = Boolean.parseBoolean(properties.getProperty("enderChestSizeHook", "true"));
 		return new String[] { this.getClass().getName() };
 	}
 
