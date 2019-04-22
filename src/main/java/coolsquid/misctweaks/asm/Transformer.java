@@ -30,11 +30,11 @@ public class Transformer implements IClassTransformer, IFMLLoadingPlugin {
 		if (transformedName.equals("net.minecraft.block.BlockFire")) {
 			ClassNode c = createClassNode(basicClass);
 			if (fireSourceHook) {
-				MethodNode m = getMethod(c, "updateTick", "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V", "", "");
+				MethodNode m = getMethod(c, "updateTick", "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V", "b", "(Lamu;Let;Lawt;Ljava/util/Random;)V");
 				for (int i = 0; i < m.instructions.size(); i++) {
 					if (m.instructions.get(i) instanceof MethodInsnNode) {
 						MethodInsnNode a = (MethodInsnNode) m.instructions.get(i);
-						if (a.name.equals("isFireSource") && a.desc.equals("(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;)Z")) {
+						if (a.name.equals("isFireSource") && (a.desc.equals("(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;)Z") || a.desc.equals("(Lamu;Let;Lfa;)Z"))) {
 							m.instructions.insertBefore(a, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(Hooks.class), "isFireSource",
 									"(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;)Z", false));
 							m.instructions.remove(a);
@@ -73,7 +73,7 @@ public class Transformer implements IClassTransformer, IFMLLoadingPlugin {
 						}
 					}
 				}
-				MethodNode m = getMethod(c, "getSizeInventory", "()I", "a", "(Lamu;)I");
+				MethodNode m = getMethod(c, "getSizeInventory", "()I", "w_", "()I");
 				InsnList toInject = new InsnList();
 				toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(Hooks.class), "getChestSize",
 						"()I", false));

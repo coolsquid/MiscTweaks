@@ -66,8 +66,6 @@ public class ConfigManager {
 	public static int tntFuseTime;
 	public static int creeperFuseTime;
 	public static int creeperExplosionRadius;
-	
-	public static boolean blocksFallInstantly = false;
 
 	public static float drowningDamage = 1.0F;
 
@@ -139,7 +137,6 @@ public class ConfigManager {
 				"The fuse time of creepers, in ticks. Has to be at least 1, as otherwise the creepers would explode immediately after spawning.");
 		creeperExplosionRadius = CONFIG.getInt("creeperExplosionRadius", "world", 3, 0, 64,
 				"The approximate radius of creeper explosions.");
-		blocksFallInstantly = CONFIG.getBoolean("blocksFallInstantly", "world", false, "If true, blocks like sand and gravel will instantly teleport to the bottom when falling.");
 
 		hungerHealthRegen = CONFIG.getFloat("healthRegen", "hunger", hungerHealthRegen, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar. Requires AppleCore.");
