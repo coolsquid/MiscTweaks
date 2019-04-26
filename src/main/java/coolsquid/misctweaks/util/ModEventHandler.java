@@ -6,8 +6,10 @@ import coolsquid.misctweaks.MiscTweaks;
 import coolsquid.misctweaks.config.ConfigManager;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.item.ItemBed;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
@@ -45,42 +47,23 @@ public class ModEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onWorldLoad(WorldEvent.Load event) {
-		if (!ConfigManager.forcedDifficulty.isEmpty()) {
-			event.getWorld().getWorldInfo()
-					.setDifficulty(EnumDifficulty.valueOf(ConfigManager.forcedDifficulty.toUpperCase()));
-		}
-		if (!ConfigManager.forcedGamemode.isEmpty()) {
-			if (ConfigManager.forcedGamemode.equalsIgnoreCase("hardcore")) {
-				event.getWorld().getWorldInfo().setGameType(GameType.SURVIVAL);
-				event.getWorld().getWorldInfo().setDifficulty(EnumDifficulty.HARD);
-				event.getWorld().getWorldInfo().setAllowCommands(false);
-				event.getWorld().getWorldInfo().setHardcore(true);
-			} else {
-				event.getWorld().getWorldInfo()
-						.setGameType(GameType.valueOf(ConfigManager.forcedGamemode.toUpperCase()));
-			}
-		}
-		if (ConfigManager.disableCheats) {
-			event.getWorld().getWorldInfo().setAllowCommands(false);
-		}
-	}
-
-	@SubscribeEvent
 	public void onCommand(CommandEvent event) {
-		if (!ConfigManager.forcedGamemode.isEmpty() && event.getCommand().getName().equals("gamemode")) {
-			event.setCanceled(true);
-		}
-		if (!ConfigManager.forcedDifficulty.isEmpty() && event.getCommand().getName().equals("difficulty")) {
-			event.setCanceled(true);
-		}
-		if (event.getCommand().getName().equals("gamerule")) {
-			if (event.getParameters().length > 1) {
-				String ruleName = event.getParameters()[0];
-				if (ConfigManager.forcedGameRules.contains(ruleName)) {
-					event.getSender().getServer().getWorld(0).getGameRules().setOrCreateGameRule(ruleName, ConfigManager.gameRules.get(ruleName));
-					event.setCanceled(true);
-					event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change this game rule.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
+		if (event.getSender() instanceof EntityPlayer && event.getSender().getServer() != null && !event.getSender().getServer().isDedicatedServer()) {
+			if (ConfigManager.forceGamemode && event.getCommand().getName().equals("gamemode")) {
+				event.setCanceled(true);
+				event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change the game mode.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
+			}
+			if (!ConfigManager.forceDifficulty && event.getCommand().getName().equals("difficulty")) {
+				event.setCanceled(true);
+				event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change the difficulty.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
+			}
+			if (event.getCommand().getName().equals("gamerule")) {
+				if (event.getParameters().length > 1) {
+					String ruleName = event.getParameters()[0];
+					if (ConfigManager.forcedGameRules.contains(ruleName)) {
+						event.setCanceled(true);
+						event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change this game rule.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
+					}
 				}
 			}
 		}
@@ -187,13 +170,6 @@ public class ModEventHandler {
 					event.getWorld().getWorldInfo().setThundering(false);
 				}
 			}
-		}
-	}
-	
-	@SubscribeEvent
-	public void onGameRuleChange(GameRuleChangeEvent event) {
-		if (ConfigManager.forcedGameRules.contains(event.getRuleName())) {
-			event.getRules().setOrCreateGameRule(event.getRuleName(), ConfigManager.gameRules.get(event.getRuleName()));
 		}
 	}
 }

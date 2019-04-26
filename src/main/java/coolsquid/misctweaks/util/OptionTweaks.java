@@ -1,5 +1,12 @@
 package coolsquid.misctweaks.util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.apache.logging.log4j.LogManager;
+
+import coolsquid.misctweaks.MiscTweaks;
+import coolsquid.misctweaks.config.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -8,10 +15,8 @@ import net.minecraft.client.gui.GuiOptionSlider;
 import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.gui.GuiOptionsRowList;
 import net.minecraft.client.gui.GuiVideoSettings;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.GameSettings.Options;
-import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,51 +25,37 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import coolsquid.misctweaks.config.ConfigManager;
-
 public class OptionTweaks {
 
 	public static void updateGuiWorld(GuiCreateWorld gui) {
-		if (!ConfigManager.forcedGamemode.isEmpty()) {
-			if (ConfigManager.forcedGamemode.equalsIgnoreCase("hardcore")) {
-				gui.btnGameMode.displayString = I18n.format("selectWorld.gameMode") + ": "
-						+ I18n.format("selectWorld.gameMode.hardcore");
-				gui.hardCoreMode = true;
-				gui.gameMode = "survival";
-				gui.savedGameMode = gui.gameMode;
-			} else {
-				gui.btnGameMode.displayString = I18n.format("selectWorld.gameMode") + ": "
-						+ I18n.format("selectWorld.gameMode." + ConfigManager.forcedGamemode.toLowerCase());
-				gui.gameMode = ConfigManager.forcedGamemode.toLowerCase();
-				gui.savedGameMode = gui.gameMode;
-			}
+		if (!ConfigManager.defaultGamemode.isEmpty() && ConfigManager.forceGamemode) {
 			gui.btnGameMode.enabled = false;
 		}
-		if (ConfigManager.disableCheats) {
-			gui.allowCheats = false;
-			gui.allowCheatsWasSetByUser = true;
+		if (ConfigManager.cheats != -1 && ConfigManager.forceDefaultCheatsOption) {
 			gui.btnAllowCommands.enabled = false;
-			gui.btnAllowCommands.displayString = I18n.format("selectWorld.allowCommands", new Object[0]) + ' '
-					+ I18n.format("options.off", new Object[0]);
 		}
-		if (ConfigManager.disableBonusChest) {
-			gui.bonusChestEnabled = false;
+		if (ConfigManager.bonusChest != -1 && ConfigManager.forceDefaultBonusChestOption) {
 			gui.btnBonusItems.enabled = false;
-			gui.btnBonusItems.displayString = I18n.format("selectWorld.bonusItems", new Object[0]) + ' '
-					+ I18n.format("options.off", new Object[0]);
 		}
-		if (ConfigManager.forcedWorldType != -1) {
-			gui.selectedIndex = ConfigManager.forcedWorldType;
+		if (ConfigManager.generateStructures != -1 && ConfigManager.forceDefaultGenerateStructuresOption) {
+			gui.btnMapFeatures.enabled = false;
+		}
+		if (ConfigManager.defaultWorldType != -1 && ConfigManager.forceWorldType) {
 			gui.btnMapType.enabled = false;
-			gui.btnMapType.displayString = I18n.format("selectWorld.mapType") + " "
-					+ I18n.format(WorldType.WORLD_TYPES[ConfigManager.forcedWorldType].getTranslationKey());
 			gui.btnCustomizeType.enabled = false;
-			gui.btnCustomizeType.displayString = I18n.format("selectWorld.customizeType");
 		}
-		if (!ConfigManager.forcedChunkProviderSettings.isEmpty()) {
+		if (!ConfigManager.defaultChunkProviderSettings.isEmpty() && ConfigManager.forceChunkProviderSettings) {
 			gui.btnCustomizeType.enabled = false;
-			gui.btnCustomizeType.displayString = I18n.format("selectWorld.customizeType");
-			gui.chunkProviderSettingsJson = ConfigManager.forcedChunkProviderSettings;
+		}
+		if (!ConfigManager.defaultSeed.isEmpty() && ConfigManager.forceSeed) {
+			gui.worldSeedField.setEnabled(false);
+		}
+		try {
+			Method m = GuiCreateWorld.class.getDeclaredMethod("updateDisplayState");
+			m.setAccessible(true);
+			m.invoke(gui);
+		} catch (ReflectiveOperationException e) {
+			LogManager.getLogger(MiscTweaks.NAME).catching(e);
 		}
 	}
 
@@ -117,12 +108,17 @@ public class OptionTweaks {
 		public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
 			if (event.getGui() instanceof GuiCreateWorld) {
 				OptionTweaks.updateGuiWorld((GuiCreateWorld) event.getGui());
-			} else if (event.getGui() instanceof GuiOptions && !ConfigManager.forcedDifficulty.isEmpty()) {
+			} else if (event.getGui() instanceof GuiOptions && ConfigManager.forceDifficulty) {
 				GuiButton b = ((GuiOptions) event.getGui()).difficultyButton;
 				if (b != null) {
 					b.enabled = false;
-					b.displayString = I18n.format("options.difficulty", new Object[0]) + ": " + I18n.format(
-							"options.difficulty." + ConfigManager.forcedDifficulty.toLowerCase(), new Object[0]);
+					Method m = GuiCreateWorld.class.getDeclaredMethods()[4];
+					m.setAccessible(true);
+					try {
+						m.invoke(event.getGui());
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						LogManager.getLogger(MiscTweaks.NAME).catching(e);
+					}
 				}
 			} else if (event.getGui() instanceof GuiMainMenu) {
 				if (ConfigManager.removeRealmsButton) {

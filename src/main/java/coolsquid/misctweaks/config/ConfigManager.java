@@ -33,18 +33,30 @@ public class ConfigManager {
 
 	public static final Configuration CONFIG = new Configuration(new File("config/MiscTweaks.cfg"));
 
-	public static String forcedDifficulty = "";
-	public static String forcedGamemode = "";
-	public static int forcedWorldType = -1;
-	public static String forcedChunkProviderSettings = "";
+	public static String defaultDifficulty = "";
+	public static boolean forceDifficulty = false;
+	public static String defaultGamemode = "";
+	public static boolean forceGamemode = false;
 	public static int defaultWorldType = -1;
+	public static boolean forceWorldType = false;
 	public static String defaultChunkProviderSettings = "";
-	public static boolean disableCheats = false;
-	public static boolean disableBonusChest = false;
-	public static float maxGamma = 1;
-	public static int maxRenderDistance = 32;
+	public static boolean forceChunkProviderSettings = false;
+
+	public static int generateStructures = -1;
+	public static boolean forceDefaultGenerateStructuresOption = false;
+	public static int cheats = -1;
+	public static boolean forceDefaultCheatsOption = false;
+	public static int bonusChest = -1;
+	public static boolean forceDefaultBonusChestOption = false;
+	
+	public static String defaultSeed;
+	public static boolean forceSeed = false;
+
 	public static long newWorldTime;
 	public static String newWorldWeather;
+
+	public static float maxGamma = 1;
+	public static int maxRenderDistance = 32;
 
 	public static Map<String, String> gameRules;
 	public static Set<String> forcedGameRules;
@@ -86,24 +98,38 @@ public class ConfigManager {
 	public static void loadConfig() {
 		CONFIG.load();
 
-		forcedDifficulty = CONFIG.getString("forcedDifficulty", "game_options", forcedDifficulty,
-				"Forces the specified difficulty. Allows for hard, normal, easy or peaceful. Leave empty to disable.",
+		migrateOldCrap1();
+
+		defaultDifficulty = CONFIG.getString("defaultDifficulty", "game_options", "",
+				"Sets a default difficulty for new worlds. Allows for hard, normal, easy or peaceful. Leave empty to disable.",
 				new String[] { "peaceful", "easy", "normal", "hard" });
-		forcedGamemode = CONFIG.getString("forcedGamemode", "game_options", forcedGamemode,
+		forceDifficulty = CONFIG.getBoolean("forceDifficulty", "game_options", false, "Prevents the player from changing from the default difficulty. Must be combined with the \"defaultDifficulty\" option.");
+		defaultGamemode = CONFIG.getString("defaultGamemode", "game_options", "",
 				"Forces the specified gamemode. Allows for survival, creative, adventure, spectator, and hardcore. Leave empty to disable.",
 				new String[] { "survival", "creative", "adventure", "spectator", "hardcore" });
-		forcedWorldType = CONFIG.getInt("forcedWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
-				"Forces a certain world type. 0 is default, 1 is superflat, 2 is large biomes, etc. Set to -1 to disable.");
-		forcedChunkProviderSettings = CONFIG.getString("forcedChunkProviderSettings", "game_options", "",
-				"Forces a certain chunk provider settings JSON.");
+		forceGamemode = CONFIG.getBoolean("forceGamemode", "game_options", false, "Prevents the player from changing from the default game mode. Must be combined with the \"defaultGamemode\" option.");
 		defaultWorldType = CONFIG.getInt("defaultWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
 				"Sets a default (initially selected) world type. 0 is default, 1 is superflat, 2 is large biomes, etc. Set to -1 to disable.");
+		forceWorldType = CONFIG.getBoolean("forceWorldType", "game_options", false, "Prevents the player from changing from the default world type. Must be combined with the \"defaultWorldType\" option.");
 		defaultChunkProviderSettings = CONFIG.getString("defaultChunkProviderSettings", "game_options", "",
 				"Sets a default chunk provider settings JSON.");
-		disableCheats = CONFIG.getBoolean("disableCheats", "game_options", disableCheats,
-				"Forces cheats to be disabled.");
-		disableBonusChest = CONFIG.getBoolean("disableBonusChest", "game_options", disableBonusChest,
-				"Forces the bonus chest to be disabled.");
+		forceChunkProviderSettings = CONFIG.getBoolean("forceChunkProviderSettings", "game_options", false, "Prevents the player from changing from the default chunk provider settings.");
+
+		generateStructures = CONFIG.getInt("generateStructures", "game_options", -1, -1, 1, "Whether structures should, by default, be generated in new worlds. 1 = generate structures, 0 = don't generate structures, -1 = Vanilla behavior.");
+		forceDefaultGenerateStructuresOption = CONFIG.getBoolean("forceDefaultGenerateStructuresOption", "game_options", false,
+				"Prevents the player from enabling or disabling the structure generation option when creating a new world. Must be combined with the \"generateStructures\" option.");
+
+		migrateOldCrap3();
+		cheats = CONFIG.getInt("cheats", "game_options", -1, -1, 1, "Whether cheats should, by default, be enabled in new worlds. 1 = enable cheats, 0 = disable cheats, -1 = Vanilla behavior.");
+		forceDefaultCheatsOption = CONFIG.getBoolean("forceDefaultCheatsOption", "game_options", false,
+				"Prevents the player from enabling or disabling cheats when creating a new world. Must be combined with the \"cheats\" option.");
+		bonusChest = CONFIG.getInt("bonusChest", "game_options", -1, -1, 1, "Whether bonus chests should, by default, be generated in new worlds. 1 = enable bonus chests, 0 = disable bonus chests, -1 = Vanilla behavior.");
+		forceDefaultBonusChestOption = CONFIG.getBoolean("forceDefaultBonusChestOption", "game_options", false,
+				"Prevents the player from enabling or disabling bonus chests when creating a new world. Must be combined with the \"bonusChest\" option.");
+		
+		defaultSeed = CONFIG.getString("defaultSeed", "game_options", "", "The default seed of new worlds.");
+		forceSeed = CONFIG.getBoolean("forceSeed", "game_options", false, "Prevents the player from changing the seed of new worlds. Must be combined with the \"defaultSeed\" option.");
+
 		maxGamma = (float) CONFIG.getInt("maxGamma", "game_options", 100, 0, 100, "Sets a maximum brightness level.")
 				/ 100;
 		maxRenderDistance = CONFIG.getInt("maxRenderDistance", "game_options", 32, 2, 32,
@@ -157,24 +183,7 @@ public class ConfigManager {
 		
 		disabledOverlays = new HashSet<>();
 		
-		// Migration code
-		for (ElementType overlay : ElementType.values()) {
-			if (overlay != ElementType.ALL) {
-				if (CONFIG.getBoolean(overlay.name().toLowerCase(), "client.disabled_overlays", false, "LEGACY! Use \"disabledOverlays\" instead.")) {
-					disabledOverlays.add(overlay);
-					Property prop = CONFIG.get("client", "disabledOverlays", new String[0]);
-					String[] newValues = new String[prop.getStringList().length + 1];
-					for (int i = 0; i < prop.getStringList().length; i++) {
-						newValues[i] = prop.getStringList()[i];
-					}
-					newValues[prop.getStringList().length] = overlay.name().toLowerCase();
-					prop.set(newValues);
-				}
-			}
-		}
-		CONFIG.getCategory("client.disabled_overlays").clear();
-		CONFIG.removeCategory(CONFIG.getCategory("client.disabled_overlays"));
-		// End of migration code
+		migrateOldCrap2();
 
 		for (String s : CONFIG.getStringList("disabledOverlays", "client", new String[0], "Disables UI overlays, such as the health bar or the debug screen. List of overlays as of 1.12.2: https://gist.github.com/coolsquid/499cb7a03303f39b7e9d918b617d0b11")) {
 			try {
@@ -233,6 +242,123 @@ public class ConfigManager {
 			}
 			// The options are hidden, so don't save them
 			CONFIG.load();
+		}
+	}
+
+	private static void migrateOldCrap3() {
+		if (CONFIG.hasKey("game_options", "disableCheats")) {
+			Property prop = CONFIG.get("game_options", "disableCheats", "");
+			if (prop.getBoolean()) {
+				Property prop2 = CONFIG.get("game_options", "cheats", -1);
+				prop2.set(1);
+			}
+			CONFIG.getCategory("game_options").remove("disableCheats");
+		}
+		if (CONFIG.hasKey("game_options", "disableBonusChest")) {
+			Property prop = CONFIG.get("game_options", "disableBonusChest", "");
+			if (prop.getBoolean()) {
+				Property prop2 = CONFIG.get("game_options", "bonusChest", -1);
+				prop2.set(1);
+			}
+			CONFIG.getCategory("game_options").remove("disableBonusChest");
+		}
+	}
+
+	/**
+	 * Migrates the old "disabled_overlays" option to the new "disabledOverlays" option.
+	 * TODO: remove at some point 
+	 */
+	private static void migrateOldCrap2() {
+		for (ElementType overlay : ElementType.values()) {
+			if (overlay != ElementType.ALL) {
+				if (CONFIG.getBoolean(overlay.name().toLowerCase(), "client.disabled_overlays", false, "LEGACY! Use \"disabledOverlays\" instead.")) {
+					disabledOverlays.add(overlay);
+					Property prop = CONFIG.get("client", "disabledOverlays", new String[0]);
+					String[] newValues = new String[prop.getStringList().length + 1];
+					for (int i = 0; i < prop.getStringList().length; i++) {
+						newValues[i] = prop.getStringList()[i];
+					}
+					newValues[prop.getStringList().length] = overlay.name().toLowerCase();
+					prop.set(newValues);
+				}
+			}
+		}
+		CONFIG.getCategory("client.disabled_overlays").clear();
+		CONFIG.removeCategory(CONFIG.getCategory("client.disabled_overlays"));
+	}
+
+	/**
+	 * Migrates the old "forcedX" options to the new "forceX" options.
+	 * TODO: remove at some point 
+	 */
+	private static void migrateOldCrap1() {
+		if (CONFIG.hasKey("game_options", "forcedDifficulty")) {
+			Property prop = CONFIG.get("game_options", "forcedDifficulty", "");
+			if (prop.getString().isEmpty()) {
+				CONFIG.getCategory("game_options").remove("forcedDifficulty");
+			}
+			else {
+				if (defaultDifficulty.isEmpty()) {
+					Property prop2 = CONFIG.get("game_options", "defaultDifficulty", "");
+					prop2.set(prop.getString());
+					Property prop3 = CONFIG.get("game_options", "forceDifficulty", "");
+					prop3.set(true);
+					CONFIG.getCategory("game_options").remove("forcedDifficulty");
+				} else {
+					prop.setComment("LEGACY! This option no longer works. Use \"defaultDifficulty\" and \"forceDifficulty\" instead.");
+				}
+			}
+		}
+		if (CONFIG.hasKey("game_options", "forcedGamemode")) {
+			Property prop = CONFIG.get("game_options", "forcedGamemode", "");
+			if (prop.getString().isEmpty()) {
+				CONFIG.getCategory("game_options").remove("forcedGamemode");
+			}
+			else {
+				if (defaultGamemode.isEmpty()) {
+					Property prop2 = CONFIG.get("game_options", "defaultGamemode", "");
+					prop2.set(prop.getString());
+					Property prop3 = CONFIG.get("game_options", "forceGamemode", "");
+					prop3.set(true);
+					CONFIG.getCategory("game_options").remove("forcedGamemode");
+				} else {
+					prop.setComment("LEGACY! This option no longer works. Use \"defaultGamemode\" and \"forceGamemode\" instead.");
+				}
+			}
+		}
+		if (CONFIG.hasKey("game_options", "forcedWorldType")) {
+			Property prop = CONFIG.get("game_options", "forcedWorldType", "");
+			if (prop.getString().isEmpty()) {
+				CONFIG.getCategory("game_options").remove("forcedWorldType");
+			}
+			else {
+				if (defaultWorldType == -1) {
+					Property prop2 = CONFIG.get("game_options", "defaultWorldType", "");
+					prop2.set(prop.getString());
+					Property prop3 = CONFIG.get("game_options", "forceWorldType", "");
+					prop3.set(true);
+					CONFIG.getCategory("game_options").remove("forcedWorldType");
+				} else {
+					prop.setComment("LEGACY! This option no longer works. Use \"defaultWorldType\" and \"forceWorldType\" instead.");
+				}
+			}
+		}
+		if (CONFIG.hasKey("game_options", "forcedChunkProviderSettings")) {
+			Property prop = CONFIG.get("game_options", "forcedChunkProviderSettings", "");
+			if (!prop.getString().isEmpty()) {
+				CONFIG.getCategory("game_options").remove("forcedChunkProviderSettings");
+			}
+			else {
+				if (defaultChunkProviderSettings.isEmpty()) {
+					Property prop2 = CONFIG.get("game_options", "defaultChunkProviderSettings", "");
+					prop2.set(prop.getString());
+					Property prop3 = CONFIG.get("game_options", "forceChunkProviderSettings", "");
+					prop3.set(true);
+					CONFIG.getCategory("game_options").remove("forcedChunkProviderSettings");
+				} else {
+					prop.setComment("LEGACY! This option no longer works. Use \"defaultChunkProviderSettings\" and \"forceChunkProviderSettings\" instead.");
+				}
+			}
 		}
 	}
 
