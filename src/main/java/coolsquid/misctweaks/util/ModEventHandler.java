@@ -75,11 +75,13 @@ public class ModEventHandler {
 			event.setCanceled(true);
 		}
 		if (event.getCommand().getName().equals("gamerule")) {
-			String ruleName = event.getParameters()[0];
-			if (ConfigManager.forcedGameRules.contains(ruleName)) {
-				event.getSender().getServer().getWorld(0).getGameRules().setOrCreateGameRule(ruleName, ConfigManager.gameRules.get(ruleName));
-				event.setCanceled(true);
-				event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change this game rule.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
+			if (event.getParameters().length > 1) {
+				String ruleName = event.getParameters()[0];
+				if (ConfigManager.forcedGameRules.contains(ruleName)) {
+					event.getSender().getServer().getWorld(0).getGameRules().setOrCreateGameRule(ruleName, ConfigManager.gameRules.get(ruleName));
+					event.setCanceled(true);
+					event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change this game rule.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
+				}
 			}
 		}
 	}
