@@ -28,4 +28,8 @@ public class Hooks {
 	public static int getEnderChestSize() {
 		return ConfigManager.enderChestSize;
 	}
+
+	public static int getMinecartChestSize() {
+		return ConfigManager.minecartChestSize;
+	}
 }

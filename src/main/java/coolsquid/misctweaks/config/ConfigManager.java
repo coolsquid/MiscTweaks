@@ -78,6 +78,7 @@ public class ConfigManager {
 	
 	public static int chestSize = 27;
 	public static int enderChestSize = 27;
+	public static int minecartChestSize = 27;
 
 	public static boolean enableConfigGui;
 
@@ -174,6 +175,7 @@ public class ConfigManager {
 		
 		chestSize = CONFIG.getInt("chestSize", "world", 27, 9, 54, "Changes the number of slots in normal and trapped chests. Note that >27 doesn't work very well with double chests.");
 		enderChestSize = CONFIG.getInt("enderChestSize", "world", 27, 9, 54, "Changes the number of slots in ender chests.");
+		minecartChestSize = CONFIG.getInt("minecartChestSize", "world", 27, 9, 54, "Changes the number of slots in minecart chests.");
 
 		Property enableConfigGui = CONFIG.get("general", "enableConfigGui", true);
 		enableConfigGui.setComment("Whether to enable the ingame config GUI.");
