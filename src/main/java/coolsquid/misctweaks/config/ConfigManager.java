@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.ImmutableSet;
+import org.apache.logging.log4j.LogManager;
+
 import com.google.common.collect.Sets;
 
 import coolsquid.misctweaks.MiscTweaks;
@@ -153,15 +154,38 @@ public class ConfigManager {
 				"Removes the realms button from the main menu.");
 		removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", "client", removeCopyrightText,
 				"Removes the copyright information from the main menu.");
-
-		ImmutableSet.Builder<ElementType> overlays = ImmutableSet.builder();
+		
+		disabledOverlays = new HashSet<>();
+		
+		// Migration code
 		for (ElementType overlay : ElementType.values()) {
-			if (overlay != ElementType.ALL && CONFIG.getBoolean(overlay.name().toLowerCase(),
-					"client.disabled_overlays", false, "Set to true to disable the overlay.")) {
-				overlays.add(overlay);
+			if (overlay != ElementType.ALL) {
+				if (CONFIG.getBoolean(overlay.name().toLowerCase(), "client.disabled_overlays", false, "LEGACY! Use \"disabledOverlays\" instead.")) {
+					disabledOverlays.add(overlay);
+					Property prop = CONFIG.get("client", "disabledOverlays", new String[0]);
+					String[] newValues = new String[prop.getStringList().length + 1];
+					for (int i = 0; i < prop.getStringList().length; i++) {
+						newValues[i] = prop.getStringList()[i];
+					}
+					newValues[prop.getStringList().length] = overlay.name().toLowerCase();
+					prop.set(newValues);
+				}
 			}
 		}
-		disabledOverlays = overlays.build();
+		CONFIG.getCategory("client.disabled_overlays").clear();
+		CONFIG.removeCategory(CONFIG.getCategory("client.disabled_overlays"));
+		// End of migration code
+
+		for (String s : CONFIG.getStringList("disabledOverlays", "client", new String[0], "Disables UI overlays, such as the health bar or the debug screen. List of overlays as of 1.12.2: https://gist.github.com/coolsquid/499cb7a03303f39b7e9d918b617d0b11")) {
+			try {
+				ElementType overlay = ElementType.valueOf(s.toUpperCase());
+				if (overlay != null) {
+					disabledOverlays.add(overlay);
+				}
+			} catch (Exception e) {
+				LogManager.getLogger(MiscTweaks.NAME).error("Failed to disable overlay: " + s);
+			}
+		}
 
 		drowningDamage = CONFIG.getFloat("drowningDamage", "miscellaneous", drowningDamage, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by drowning.");
@@ -192,8 +216,8 @@ public class ConfigManager {
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
 		}
-		// Hidden test for the new event handler.
 		{
+			// Hidden test for the new event handler.
 			for (Object e : HANDLERS) {
 				MinecraftForge.EVENT_BUS.unregister(e);
 			}
