@@ -33,7 +33,7 @@ sourceSets {
 
 jar {
     manifest {
-    	attributes 'FMLCorePlugin': 'coolsquid.misctweaks.asm.Transformer'
+    	attributes 'FMLCorePlugin': 'coolsquid.misctweaks.asm.MiscTweaksPlugin'
     	attributes 'FMLCorePluginContainsFMLMod': 'true'
         attributes 'FMLAT': 'MiscTweaks_at.cfg'
     }
