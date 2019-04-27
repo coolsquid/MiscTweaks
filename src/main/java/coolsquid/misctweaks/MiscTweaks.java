@@ -42,10 +42,6 @@ public class MiscTweaks {
 		Object handler = new ModEventHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
 		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
-
-		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
-			MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
-		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -100,6 +96,11 @@ public class MiscTweaks {
 	public static void applyTweaks() {
 		BrandingTweaks.updateBranding();
 		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+			if (ConfigManager.disabledOverlays.isEmpty()) {
+				MinecraftForge.EVENT_BUS.unregister(ClientEventHandler.INSTANCE);
+			} else {
+				MinecraftForge.EVENT_BUS.register(ClientEventHandler.INSTANCE);
+			}
 			// unregisters itself for performance, must be reregistered if configs change
 			MinecraftForge.EVENT_BUS.register(new OptionTweaks.SettingsListener());
 		}

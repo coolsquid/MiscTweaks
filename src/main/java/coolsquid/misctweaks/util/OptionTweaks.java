@@ -11,19 +11,31 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiOptionSlider;
+import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.gui.GuiOptionsRowList;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.GameSettings.Options;
+import net.minecraft.world.EnumDifficulty;
+import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class OptionTweaks {
+
+	private static final Method METHOD_ACTION_PERFORMED = ObfuscationReflectionHelper.findMethod(GuiCreateWorld.class, "actionPerformed", void.class, GuiButton.class);
+	private static final Method METHOD_UPDATE_DISPLAY_STATE = ObfuscationReflectionHelper.findMethod(GuiCreateWorld.class, "updateDisplayState", void.class);
+
+	static {
+		METHOD_ACTION_PERFORMED.setAccessible(true);
+		METHOD_UPDATE_DISPLAY_STATE.setAccessible(true);
+	}
 
 	public static void disableButtons(GuiCreateWorld gui) {
 		if (ConfigManager.cheats != -1 && ConfigManager.forceDefaultCheatsOption) {
@@ -55,33 +67,10 @@ public class OptionTweaks {
 			gui.btnMapType.enabled = false;
 		}
 		try {
-			Method m = GuiCreateWorld.class.getDeclaredMethod("updateDisplayState");
-			m.setAccessible(true);
-			m.invoke(gui);
+			METHOD_UPDATE_DISPLAY_STATE.invoke(gui);
 		} catch (ReflectiveOperationException e) {
 			LogManager.getLogger(MiscTweaks.NAME).catching(e);
 		}
-	}
-
-	private static void setOptions() {
-		if (ConfigManager.maxGamma < 1) {
-			GameSettings.Options.GAMMA.setValueMax(ConfigManager.maxGamma);
-			if (ConfigManager.maxGamma < Minecraft.getMinecraft().gameSettings.gammaSetting) {
-				Minecraft.getMinecraft().gameSettings.setOptionFloatValue(Options.GAMMA, ConfigManager.maxGamma);
-			}
-		} else {
-			GameSettings.Options.GAMMA.setValueMax(1);
-		}
-		if (ConfigManager.maxRenderDistance < 32) {
-			GameSettings.Options.RENDER_DISTANCE.setValueMax(ConfigManager.maxRenderDistance);
-			if (ConfigManager.maxRenderDistance < Minecraft.getMinecraft().gameSettings.renderDistanceChunks) {
-				Minecraft.getMinecraft().gameSettings.setOptionValue(Options.RENDER_DISTANCE,
-						ConfigManager.maxRenderDistance);
-			}
-		} else {
-			GameSettings.Options.RENDER_DISTANCE.setValueMax(32);
-		}
-		Minecraft.getMinecraft().gameSettings.saveOptions();
 	}
 
 	public static class SettingsListener {
@@ -91,7 +80,24 @@ public class OptionTweaks {
 		@SubscribeEvent
 		public void onGuiOpen(GuiOpenEvent event) {
 			if (event.getGui() instanceof GuiMainMenu) {
-				setOptions();
+				if (ConfigManager.maxGamma < 1) {
+					GameSettings.Options.GAMMA.setValueMax(ConfigManager.maxGamma);
+					if (ConfigManager.maxGamma < Minecraft.getMinecraft().gameSettings.gammaSetting) {
+						Minecraft.getMinecraft().gameSettings.setOptionFloatValue(Options.GAMMA, ConfigManager.maxGamma);
+					}
+				} else {
+					GameSettings.Options.GAMMA.setValueMax(1);
+				}
+				if (ConfigManager.maxRenderDistance < 32) {
+					GameSettings.Options.RENDER_DISTANCE.setValueMax(ConfigManager.maxRenderDistance);
+					if (ConfigManager.maxRenderDistance < Minecraft.getMinecraft().gameSettings.renderDistanceChunks) {
+						Minecraft.getMinecraft().gameSettings.setOptionValue(Options.RENDER_DISTANCE,
+								ConfigManager.maxRenderDistance);
+					}
+				} else {
+					GameSettings.Options.RENDER_DISTANCE.setValueMax(32);
+				}
+				Minecraft.getMinecraft().gameSettings.saveOptions();
 				MinecraftForge.EVENT_BUS.unregister(this);
 			}
 		}
@@ -101,9 +107,25 @@ public class OptionTweaks {
 
 		@SideOnly(Side.CLIENT)
 		@SubscribeEvent
-		public void onGuiInit(GuiScreenEvent.ActionPerformedEvent.Post event) {
-			if (event.getGui() instanceof GuiCreateWorld && event.getButton().id == 3) {
-				disableButtons((GuiCreateWorld) event.getGui());
+		public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent.Post event) {
+			if (event.getGui() instanceof GuiCreateWorld) {
+				GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
+				if (event.getButton().id == 2 && !ConfigManager.allowedGamemodes.isEmpty()) {
+					while (!ConfigManager.allowedGamemodes.contains(gui.gameMode.toUpperCase())) {
+						try {
+							METHOD_ACTION_PERFORMED.invoke(gui, event.getButton());
+						} catch (ReflectiveOperationException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+				OptionTweaks.disableButtons(gui);
+			} else if (event.getGui() instanceof GuiOptions && event.getButton().id == 108 && !ConfigManager.allowedDifficulties.isEmpty()) {
+				GuiOptions gui = (GuiOptions) event.getGui();
+				while (!ConfigManager.allowedDifficulties.contains(Minecraft.getMinecraft().world.getWorldInfo().getDifficulty().name().toUpperCase())) {
+					Minecraft.getMinecraft().world.getWorldInfo().setDifficulty(EnumDifficulty.getDifficultyEnum(Minecraft.getMinecraft().world.getDifficulty().getDifficultyId() + 1));
+	                gui.difficultyButton.displayString = gui.getDifficultyText(Minecraft.getMinecraft().world.getDifficulty());
+				}
 			}
 		}
 
@@ -111,7 +133,43 @@ public class OptionTweaks {
 		@SubscribeEvent
 		public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
 			if (event.getGui() instanceof GuiCreateWorld) {
-				OptionTweaks.disableButtons((GuiCreateWorld) event.getGui());
+				if (event.getGui() instanceof GuiCreateWorld) {
+					GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
+					if (!ConfigManager.defaultGamemode.isEmpty()) {
+						if (ConfigManager.defaultGamemode.equalsIgnoreCase("hardcore")) {
+							gui.gameMode = "hardcore";
+							gui.hardCoreMode = true;
+							gui.btnAllowCommands.enabled = false;
+							gui.btnBonusItems.enabled = false;
+						} else {
+							gui.gameMode = ConfigManager.defaultGamemode.toLowerCase();
+							if (ConfigManager.defaultGamemode.equals("creative") && ConfigManager.cheats == -1) {
+								gui.allowCheats = true;
+							}
+						}
+					}
+					if (ConfigManager.cheats != -1) {
+						gui.allowCheats = ConfigManager.cheats == 1;
+						gui.allowCheatsWasSetByUser = true;
+					}
+					if (ConfigManager.bonusChest != -1) {
+						gui.bonusChestEnabled = ConfigManager.bonusChest == 1;
+					}
+					if (ConfigManager.generateStructures != -1) {
+						gui.generateStructuresEnabled = ConfigManager.generateStructures == 1;
+					}
+					if (!ConfigManager.defaultWorldType.isEmpty()) {
+						gui.selectedIndex = WorldType.parseWorldType(ConfigManager.defaultWorldType).getId();
+					}
+					if (!ConfigManager.defaultChunkProviderSettings.isEmpty()) {
+						gui.chunkProviderSettingsJson = ConfigManager.defaultChunkProviderSettings;
+					}
+					if (!ConfigManager.defaultSeed.isEmpty()) {
+						gui.worldSeed = ConfigManager.defaultSeed;
+						gui.worldSeedField.setText(ConfigManager.defaultSeed);
+					}
+					OptionTweaks.disableButtons(gui);
+				}
 			} else if (event.getGui() instanceof GuiMainMenu) {
 				if (ConfigManager.removeRealmsButton) {
 					((GuiMainMenu) event.getGui()).realmsButton.visible = false;
