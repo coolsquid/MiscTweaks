@@ -112,7 +112,7 @@ public class ConfigManager {
 				"Sets a default difficulty for new worlds. Allows for hard, normal, easy or peaceful. Leave empty to disable.",
 				new String[] { "peaceful", "easy", "normal", "hard" });
 		allowedDifficulties = new HashSet<>();
-		for (String s : CONFIG.getStringList("allowedDifficulties", CATEGORY_GAME_OPTIONS, new String[0], "")) {
+		for (String s : CONFIG.getStringList("allowedDifficulties", CATEGORY_GAME_OPTIONS, new String[0], "Disables all difficulties except those listed. Leave empty to disable.")) {
 			if (defaultDifficulty.isEmpty()) {
 				defaultDifficulty = s;
 			}
@@ -123,7 +123,7 @@ public class ConfigManager {
 				"Forces the specified gamemode. Allows for survival, creative, adventure, spectator, and hardcore. Leave empty to disable.",
 				new String[] { "survival", "creative", "adventure", "spectator", "hardcore" });
 		allowedGamemodes = new HashSet<>();
-		for (String s : CONFIG.getStringList("allowedGamemodes", CATEGORY_GAME_OPTIONS, new String[0], "")) {
+		for (String s : CONFIG.getStringList("allowedGamemodes", CATEGORY_GAME_OPTIONS, new String[0], "Disables all game modes except those listed. Leave empty to disable.")) {
 			if (defaultGamemode.isEmpty()) {
 				defaultGamemode = s;
 			}
@@ -133,7 +133,7 @@ public class ConfigManager {
 		defaultWorldType = CONFIG.getString("defaultWorldType", CATEGORY_GAME_OPTIONS, "",
 				"Sets a default (initially selected) world type. Leave empty to disable.");
 		allowedWorldTypes = new HashSet<>();
-		for (String s : CONFIG.getStringList("allowedWorldTypes", CATEGORY_GAME_OPTIONS, new String[0], "")) {
+		for (String s : CONFIG.getStringList("allowedWorldTypes", CATEGORY_GAME_OPTIONS, new String[0], "Disables all world types except those listed. Leave empty to disable.")) {
 			if (defaultWorldType.isEmpty()) {
 				defaultWorldType = s.toUpperCase();
 			}
