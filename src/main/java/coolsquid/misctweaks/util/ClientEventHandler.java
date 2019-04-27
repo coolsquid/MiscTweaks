@@ -1,7 +1,14 @@
 package coolsquid.misctweaks.util;
 
+import java.lang.reflect.Method;
+
 import coolsquid.misctweaks.config.ConfigManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
+import net.minecraft.client.gui.GuiOptions;
+import net.minecraft.world.EnumDifficulty;
+import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -15,12 +22,24 @@ public class ClientEventHandler {
 	@SubscribeEvent
 	public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent.Post event) {
 		if (event.getGui() instanceof GuiCreateWorld) {
-			if (event.getButton().id == 2) {
-				OptionTweaks.updateGuiWorld((GuiCreateWorld) event.getGui());
-			} else if (event.getButton().id == 5 && !ConfigManager.defaultChunkProviderSettings.isEmpty()) {
-				GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
-				gui.chunkProviderSettingsJson = ConfigManager.defaultChunkProviderSettings;
-				OptionTweaks.updateGuiWorld((GuiCreateWorld) event.getGui());
+			GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
+			if (event.getButton().id == 2 && !ConfigManager.allowedGamemodes.isEmpty()) {
+				while (!ConfigManager.allowedGamemodes.contains(gui.gameMode.toUpperCase())) {
+					try {
+						Method m = GuiCreateWorld.class.getDeclaredMethod("actionPerformed", GuiButton.class);
+						m.setAccessible(true);
+						m.invoke(gui, event.getButton());
+					} catch (ReflectiveOperationException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+			OptionTweaks.disableButtons(gui);
+		} else if (event.getGui() instanceof GuiOptions && event.getButton().id == 108 && !ConfigManager.allowedDifficulties.isEmpty()) {
+			GuiOptions gui = (GuiOptions) event.getGui();
+			while (!ConfigManager.allowedDifficulties.contains(Minecraft.getMinecraft().world.getWorldInfo().getDifficulty().name().toUpperCase())) {
+				Minecraft.getMinecraft().world.getWorldInfo().setDifficulty(EnumDifficulty.getDifficultyEnum(Minecraft.getMinecraft().world.getDifficulty().getDifficultyId() + 1));
+                gui.difficultyButton.displayString = gui.getDifficultyText(Minecraft.getMinecraft().world.getDifficulty());
 			}
 		}
 	}
@@ -40,12 +59,12 @@ public class ClientEventHandler {
 			GuiCreateWorld gui = (GuiCreateWorld) event.getGui();
 			if (!ConfigManager.defaultGamemode.isEmpty()) {
 				if (ConfigManager.defaultGamemode.equalsIgnoreCase("hardcore")) {
+					gui.gameMode = "hardcore";
 					gui.hardCoreMode = true;
-					gui.gameMode = "survival";
-					gui.savedGameMode = gui.gameMode;
+					gui.btnAllowCommands.enabled = false;
+					gui.btnBonusItems.enabled = false;
 				} else {
 					gui.gameMode = ConfigManager.defaultGamemode.toLowerCase();
-					gui.savedGameMode = gui.gameMode;
 					if (ConfigManager.defaultGamemode.equals("creative") && ConfigManager.cheats == -1) {
 						gui.allowCheats = true;
 					}
@@ -61,8 +80,8 @@ public class ClientEventHandler {
 			if (ConfigManager.generateStructures != -1) {
 				gui.generateStructuresEnabled = ConfigManager.generateStructures == 1;
 			}
-			if (ConfigManager.defaultWorldType != -1) {
-				gui.selectedIndex = ConfigManager.defaultWorldType;
+			if (!ConfigManager.defaultWorldType.isEmpty()) {
+				gui.selectedIndex = WorldType.parseWorldType(ConfigManager.defaultWorldType).getId();
 			}
 			if (!ConfigManager.defaultChunkProviderSettings.isEmpty()) {
 				gui.chunkProviderSettingsJson = ConfigManager.defaultChunkProviderSettings;
@@ -71,7 +90,7 @@ public class ClientEventHandler {
 				gui.worldSeed = ConfigManager.defaultSeed;
 				gui.worldSeedField.setText(ConfigManager.defaultSeed);
 			}
-			OptionTweaks.updateGuiWorld(gui);
+			OptionTweaks.disableButtons(gui);
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package coolsquid.misctweaks.util;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +11,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiOptionSlider;
-import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.gui.GuiOptionsRowList;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.settings.GameSettings;
@@ -27,28 +25,34 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class OptionTweaks {
 
-	public static void updateGuiWorld(GuiCreateWorld gui) {
-		if (!ConfigManager.defaultGamemode.isEmpty() && ConfigManager.forceGamemode) {
-			gui.btnGameMode.enabled = false;
-		}
+	public static void disableButtons(GuiCreateWorld gui) {
 		if (ConfigManager.cheats != -1 && ConfigManager.forceDefaultCheatsOption) {
 			gui.btnAllowCommands.enabled = false;
+			gui.allowCheats = ConfigManager.cheats == 1;
+			gui.allowCheatsWasSetByUser = true;
 		}
 		if (ConfigManager.bonusChest != -1 && ConfigManager.forceDefaultBonusChestOption) {
 			gui.btnBonusItems.enabled = false;
+			gui.bonusChestEnabled = ConfigManager.bonusChest == 1;
 		}
 		if (ConfigManager.generateStructures != -1 && ConfigManager.forceDefaultGenerateStructuresOption) {
 			gui.btnMapFeatures.enabled = false;
-		}
-		if (ConfigManager.defaultWorldType != -1 && ConfigManager.forceWorldType) {
-			gui.btnMapType.enabled = false;
-			gui.btnCustomizeType.enabled = false;
+			gui.generateStructuresEnabled = ConfigManager.generateStructures == 1;
 		}
 		if (!ConfigManager.defaultChunkProviderSettings.isEmpty() && ConfigManager.forceChunkProviderSettings) {
 			gui.btnCustomizeType.enabled = false;
+			gui.chunkProviderSettingsJson = ConfigManager.defaultChunkProviderSettings;
 		}
 		if (!ConfigManager.defaultSeed.isEmpty() && ConfigManager.forceSeed) {
 			gui.worldSeedField.setEnabled(false);
+			gui.worldSeed = ConfigManager.defaultSeed;
+			gui.worldSeedField.setText(ConfigManager.defaultSeed);
+		}
+		if (ConfigManager.allowedGamemodes.size() == 1) {
+			gui.btnGameMode.enabled = false;
+		}
+		if (ConfigManager.allowedWorldTypes.size() == 1) {
+			gui.btnMapType.enabled = false;
 		}
 		try {
 			Method m = GuiCreateWorld.class.getDeclaredMethod("updateDisplayState");
@@ -99,7 +103,7 @@ public class OptionTweaks {
 		@SubscribeEvent
 		public void onGuiInit(GuiScreenEvent.ActionPerformedEvent.Post event) {
 			if (event.getGui() instanceof GuiCreateWorld && event.getButton().id == 3) {
-				updateGuiWorld((GuiCreateWorld) event.getGui());
+				disableButtons((GuiCreateWorld) event.getGui());
 			}
 		}
 
@@ -107,19 +111,7 @@ public class OptionTweaks {
 		@SubscribeEvent
 		public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
 			if (event.getGui() instanceof GuiCreateWorld) {
-				OptionTweaks.updateGuiWorld((GuiCreateWorld) event.getGui());
-			} else if (event.getGui() instanceof GuiOptions && ConfigManager.forceDifficulty) {
-				GuiButton b = ((GuiOptions) event.getGui()).difficultyButton;
-				if (b != null) {
-					b.enabled = false;
-					Method m = GuiCreateWorld.class.getDeclaredMethods()[4];
-					m.setAccessible(true);
-					try {
-						m.invoke(event.getGui());
-					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-						LogManager.getLogger(MiscTweaks.NAME).catching(e);
-					}
-				}
+				OptionTweaks.disableButtons((GuiCreateWorld) event.getGui());
 			} else if (event.getGui() instanceof GuiMainMenu) {
 				if (ConfigManager.removeRealmsButton) {
 					((GuiMainMenu) event.getGui()).realmsButton.visible = false;

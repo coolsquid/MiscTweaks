@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 
 import coolsquid.misctweaks.MiscTweaks;
 import coolsquid.misctweaks.config.ConfigManager;
+import net.minecraft.command.CommandDifficulty;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -49,11 +50,11 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void onCommand(CommandEvent event) {
 		if (event.getSender() instanceof EntityPlayer && event.getSender().getServer() != null && !event.getSender().getServer().isDedicatedServer()) {
-			if (ConfigManager.forceGamemode && event.getCommand().getName().equals("gamemode")) {
+			if (!ConfigManager.allowedGamemodes.isEmpty() && event.getCommand().getName().equals("gamemode") && !ConfigManager.allowedGamemodes.contains(event.getParameters()[0])) {
 				event.setCanceled(true);
 				event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change the game mode.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
 			}
-			if (!ConfigManager.forceDifficulty && event.getCommand().getName().equals("difficulty")) {
+			if (!ConfigManager.allowedDifficulties.isEmpty() && event.getCommand().getName().equals("difficulty") && !ConfigManager.allowedDifficulties.contains(event.getParameters()[0])) {
 				event.setCanceled(true);
 				event.getSender().sendMessage(new TextComponentString("<MiscTweaks> You are not allowed to change the difficulty.").setStyle(new Style().setColor(TextFormatting.DARK_RED)));
 			}
@@ -169,6 +170,9 @@ public class ModEventHandler {
 					event.getWorld().getWorldInfo().setRaining(false);
 					event.getWorld().getWorldInfo().setThundering(false);
 				}
+			}
+			if (!ConfigManager.defaultDifficulty.isEmpty()) {
+				event.getWorld().getWorldInfo().setDifficulty(EnumDifficulty.valueOf(ConfigManager.defaultDifficulty));
 			}
 		}
 	}

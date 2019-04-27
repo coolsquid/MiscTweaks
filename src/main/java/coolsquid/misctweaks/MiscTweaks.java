@@ -3,6 +3,7 @@ package coolsquid.misctweaks;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import coolsquid.misctweaks.config.ConfigManager;
@@ -60,8 +61,8 @@ public class MiscTweaks {
 		File settingsFile = new File("server.properties");
 		if (!settingsFile.exists()) {
 			Properties properties = new Properties();
-			if (ConfigManager.defaultWorldType != -1) {
-				properties.setProperty("level-type", WorldType.WORLD_TYPES[ConfigManager.defaultWorldType].getName().toUpperCase());
+			if (!ConfigManager.defaultWorldType.isEmpty()) {
+				properties.setProperty("level-type", WorldType.parseWorldType(ConfigManager.defaultWorldType).getName().toUpperCase());
 			}
 			if (!ConfigManager.defaultChunkProviderSettings.isEmpty()) {
 				properties.setProperty("generator-settings", ConfigManager.defaultChunkProviderSettings);
@@ -101,6 +102,19 @@ public class MiscTweaks {
 		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
 			// unregisters itself for performance, must be reregistered if configs change
 			MinecraftForge.EVENT_BUS.register(new OptionTweaks.SettingsListener());
+		}
+		if (!ConfigManager.allowedWorldTypes.isEmpty()) {
+			for (WorldType type : WorldType.WORLD_TYPES) {
+				if (type != null) {
+					try {
+						Method m = WorldType.class.getDeclaredMethod("setCanBeCreated", boolean.class);
+						m.setAccessible(true);
+						m.invoke(type, ConfigManager.allowedWorldTypes.contains(type.getName().toUpperCase()));
+					} catch (ReflectiveOperationException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
 		}
 	}
 }

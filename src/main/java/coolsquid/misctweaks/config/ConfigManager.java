@@ -34,11 +34,11 @@ public class ConfigManager {
 	public static final Configuration CONFIG = new Configuration(new File("config/MiscTweaks.cfg"));
 
 	public static String defaultDifficulty = "";
-	public static boolean forceDifficulty = false;
+	public static Set<String> allowedDifficulties;
 	public static String defaultGamemode = "";
-	public static boolean forceGamemode = false;
-	public static int defaultWorldType = -1;
-	public static boolean forceWorldType = false;
+	public static Set<String> allowedGamemodes;
+	public static String defaultWorldType = "";
+	public static Set<String> allowedWorldTypes;
 	public static String defaultChunkProviderSettings = "";
 	public static boolean forceChunkProviderSettings = false;
 
@@ -103,14 +103,35 @@ public class ConfigManager {
 		defaultDifficulty = CONFIG.getString("defaultDifficulty", "game_options", "",
 				"Sets a default difficulty for new worlds. Allows for hard, normal, easy or peaceful. Leave empty to disable.",
 				new String[] { "peaceful", "easy", "normal", "hard" });
-		forceDifficulty = CONFIG.getBoolean("forceDifficulty", "game_options", false, "Prevents the player from changing from the default difficulty. Must be combined with the \"defaultDifficulty\" option.");
+		allowedDifficulties = new HashSet<>();
+		for (String s : CONFIG.getStringList("allowedDifficulties", "game_options", new String[0], "")) {
+			if (defaultDifficulty.isEmpty()) {
+				defaultDifficulty = s;
+			}
+			allowedDifficulties.add(s.toUpperCase());
+		}
+		defaultDifficulty = defaultDifficulty.toUpperCase();
 		defaultGamemode = CONFIG.getString("defaultGamemode", "game_options", "",
 				"Forces the specified gamemode. Allows for survival, creative, adventure, spectator, and hardcore. Leave empty to disable.",
 				new String[] { "survival", "creative", "adventure", "spectator", "hardcore" });
-		forceGamemode = CONFIG.getBoolean("forceGamemode", "game_options", false, "Prevents the player from changing from the default game mode. Must be combined with the \"defaultGamemode\" option.");
-		defaultWorldType = CONFIG.getInt("defaultWorldType", "game_options", -1, -1, WorldType.WORLD_TYPES.length - 1,
-				"Sets a default (initially selected) world type. 0 is default, 1 is superflat, 2 is large biomes, etc. Set to -1 to disable.");
-		forceWorldType = CONFIG.getBoolean("forceWorldType", "game_options", false, "Prevents the player from changing from the default world type. Must be combined with the \"defaultWorldType\" option.");
+		allowedGamemodes = new HashSet<>();
+		for (String s : CONFIG.getStringList("allowedGamemodes", "game_options", new String[0], "")) {
+			if (defaultGamemode.isEmpty()) {
+				defaultGamemode = s;
+			}
+			allowedGamemodes.add(s.toUpperCase());
+		}
+		defaultGamemode = defaultGamemode.toUpperCase();
+		defaultWorldType = CONFIG.getString("defaultWorldType", "game_options", "",
+				"Sets a default (initially selected) world type. Leave empty to disable.");
+		allowedWorldTypes = new HashSet<>();
+		for (String s : CONFIG.getStringList("allowedWorldTypes", "game_options", new String[0], "")) {
+			if (defaultWorldType.isEmpty()) {
+				defaultWorldType = s.toUpperCase();
+			}
+			allowedWorldTypes.add(s.toUpperCase());
+		}
+		defaultWorldType = defaultWorldType.toUpperCase();
 		defaultChunkProviderSettings = CONFIG.getString("defaultChunkProviderSettings", "game_options", "",
 				"Sets a default chunk provider settings JSON.");
 		forceChunkProviderSettings = CONFIG.getBoolean("forceChunkProviderSettings", "game_options", false, "Prevents the player from changing from the default chunk provider settings.");
@@ -301,8 +322,8 @@ public class ConfigManager {
 				if (defaultDifficulty.isEmpty()) {
 					Property prop2 = CONFIG.get("game_options", "defaultDifficulty", "");
 					prop2.set(prop.getString());
-					Property prop3 = CONFIG.get("game_options", "forceDifficulty", "");
-					prop3.set(true);
+					Property prop3 = CONFIG.get("game_options", "allowedDifficulties", "");
+					prop3.set(new String[] { prop2.getString() });
 					CONFIG.getCategory("game_options").remove("forcedDifficulty");
 				} else {
 					prop.setComment("LEGACY! This option no longer works. Use \"defaultDifficulty\" and \"forceDifficulty\" instead.");
@@ -318,8 +339,8 @@ public class ConfigManager {
 				if (defaultGamemode.isEmpty()) {
 					Property prop2 = CONFIG.get("game_options", "defaultGamemode", "");
 					prop2.set(prop.getString());
-					Property prop3 = CONFIG.get("game_options", "forceGamemode", "");
-					prop3.set(true);
+					Property prop3 = CONFIG.get("game_options", "allowedGamemodes", "");
+					prop3.set(new String[] { prop2.getString() });
 					CONFIG.getCategory("game_options").remove("forcedGamemode");
 				} else {
 					prop.setComment("LEGACY! This option no longer works. Use \"defaultGamemode\" and \"forceGamemode\" instead.");
@@ -327,16 +348,16 @@ public class ConfigManager {
 			}
 		}
 		if (CONFIG.hasKey("game_options", "forcedWorldType")) {
-			Property prop = CONFIG.get("game_options", "forcedWorldType", "");
-			if (prop.getString().isEmpty()) {
+			Property prop = CONFIG.get("game_options", "forcedWorldType", -1);
+			if (prop.getInt() == -1) {
 				CONFIG.getCategory("game_options").remove("forcedWorldType");
 			}
 			else {
-				if (defaultWorldType == -1) {
+				if (defaultWorldType.isEmpty()) {
 					Property prop2 = CONFIG.get("game_options", "defaultWorldType", "");
-					prop2.set(prop.getString());
-					Property prop3 = CONFIG.get("game_options", "forceWorldType", "");
-					prop3.set(true);
+					prop2.set(WorldType.WORLD_TYPES[prop.getInt()].getName());
+					Property prop3 = CONFIG.get("game_options", "allowedWorldTypes", "");
+					prop3.set(new String[] { prop2.getString() });
 					CONFIG.getCategory("game_options").remove("forcedWorldType");
 				} else {
 					prop.setComment("LEGACY! This option no longer works. Use \"defaultWorldType\" and \"forceWorldType\" instead.");
@@ -345,7 +366,7 @@ public class ConfigManager {
 		}
 		if (CONFIG.hasKey("game_options", "forcedChunkProviderSettings")) {
 			Property prop = CONFIG.get("game_options", "forcedChunkProviderSettings", "");
-			if (!prop.getString().isEmpty()) {
+			if (prop.getString().isEmpty()) {
 				CONFIG.getCategory("game_options").remove("forcedChunkProviderSettings");
 			}
 			else {
