@@ -165,7 +165,7 @@ public class ConfigManager {
 				"Sets a maximum render distance.");
 
 		newWorldTime = CONFIG.getInt("newWorldTime", CATEGORY_GAME_OPTIONS, -1, -1, 24000, "The starting time of newly created worlds. Can be combined with \"doDaylightCycle false\" in the \"gameRules\" option to indefinitely stay at the specified time.");
-		newWorldWeather = CONFIG.getString("newWorldWeather", CATEGORY_GAME_OPTIONS, "", "The starting weather of newly created worlds. Either \"clear\", \"rain\" or \"thunder\". Can be combined with \\\"doWeatherCycle false\\\" in the \\\"gameRules\\\" option to indefinitely retain the specified weather.");
+		newWorldWeather = CONFIG.getString("newWorldWeather", CATEGORY_GAME_OPTIONS, "", "The starting weather of newly created worlds. Either \"clear\", \"rain\" or \"thunder\". Can be combined with \"doWeatherCycle false\" in the \"gameRules\" option to indefinitely retain the specified weather.");
 
 		{
 			gameRules = new HashMap<>();
