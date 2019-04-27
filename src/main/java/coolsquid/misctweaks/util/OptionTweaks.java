@@ -143,7 +143,7 @@ public class OptionTweaks {
 							gui.btnBonusItems.enabled = false;
 						} else {
 							gui.gameMode = ConfigManager.defaultGamemode.toLowerCase();
-							if (ConfigManager.defaultGamemode.equals("creative") && ConfigManager.cheats == -1) {
+							if (ConfigManager.defaultGamemode.equals("CREATIVE") && ConfigManager.cheats == -1) {
 								gui.allowCheats = true;
 							}
 						}
