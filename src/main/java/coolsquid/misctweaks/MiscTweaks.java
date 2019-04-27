@@ -18,6 +18,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -105,12 +106,12 @@ public class MiscTweaks {
 			MinecraftForge.EVENT_BUS.register(new OptionTweaks.SettingsListener());
 		}
 		if (!ConfigManager.allowedWorldTypes.isEmpty()) {
+			Method setCanBeCreatedMethod = ObfuscationReflectionHelper.findMethod(WorldType.class, "func_77124_a", WorldType.class, boolean.class);
+			setCanBeCreatedMethod.setAccessible(true);
 			for (WorldType type : WorldType.WORLD_TYPES) {
 				if (type != null) {
 					try {
-						Method m = WorldType.class.getDeclaredMethod("setCanBeCreated", boolean.class);
-						m.setAccessible(true);
-						m.invoke(type, ConfigManager.allowedWorldTypes.contains(type.getName().toUpperCase()));
+						setCanBeCreatedMethod.invoke(type, ConfigManager.allowedWorldTypes.contains(type.getName().toUpperCase()));
 					} catch (ReflectiveOperationException e) {
 						throw new RuntimeException(e);
 					}

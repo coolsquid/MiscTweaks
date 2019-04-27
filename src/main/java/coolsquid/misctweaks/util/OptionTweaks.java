@@ -29,8 +29,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class OptionTweaks {
 
-	private static final Method METHOD_ACTION_PERFORMED = ObfuscationReflectionHelper.findMethod(GuiCreateWorld.class, "actionPerformed", void.class, GuiButton.class);
-	private static final Method METHOD_UPDATE_DISPLAY_STATE = ObfuscationReflectionHelper.findMethod(GuiCreateWorld.class, "updateDisplayState", void.class);
+	private static final Method METHOD_ACTION_PERFORMED = ObfuscationReflectionHelper.findMethod(GuiCreateWorld.class, "func_146284_a", void.class, GuiButton.class);
+	private static final Method METHOD_UPDATE_DISPLAY_STATE = ObfuscationReflectionHelper.findMethod(GuiCreateWorld.class, "func_146319_h", void.class);
 
 	static {
 		METHOD_ACTION_PERFORMED.setAccessible(true);
