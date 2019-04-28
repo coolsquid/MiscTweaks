@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import coolsquid.misctweaks.config.ConfigManager;
 import coolsquid.misctweaks.util.BrandingTweaks;
 import coolsquid.misctweaks.util.ClientEventHandler;
@@ -81,6 +83,9 @@ public class MiscTweaks {
 			}
 			if (!ConfigManager.defaultSeed.isEmpty()) {
 				properties.setProperty("level-seed", ConfigManager.defaultSeed);
+			}
+			for (Pair<String, String> p : ConfigManager.defaultServerProperties) {
+				properties.setProperty(p.getLeft(), p.getRight());
 			}
 			try {
 				properties.store(new FileWriter(settingsFile), "");

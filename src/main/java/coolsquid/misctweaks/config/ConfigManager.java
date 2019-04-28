@@ -5,10 +5,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 
 import com.google.common.collect.Sets;
@@ -57,6 +59,8 @@ public class ConfigManager {
 	
 	public static String defaultSeed;
 	public static boolean forceSeed = false;
+	
+	public static List<Pair<String, String>> defaultServerProperties;
 
 	public static long newWorldTime;
 	public static String newWorldWeather;
@@ -158,6 +162,17 @@ public class ConfigManager {
 		
 		defaultSeed = CONFIG.getString("defaultSeed", CATEGORY_GAME_OPTIONS, "", "The default seed of new worlds.");
 		forceSeed = CONFIG.getBoolean("forceSeed", CATEGORY_GAME_OPTIONS, false, "Prevents the player from changing the seed of new worlds. Must be combined with the \"defaultSeed\" option.");
+
+		{
+			defaultServerProperties = new ArrayList<>();
+			Property prop = CONFIG.get(CATEGORY_GAME_OPTIONS, "defaultServerProperties", new String[0]);
+			prop.setValidationPattern(Pattern.compile("(\\w+-)*(\\w+)\\s+\\S+.*"));
+			prop.setComment("Sets the default value of \"server.properties\" entries. Will be automatically inserted when the server is run for the first time. Format: \\\"key value\\\". Note that some other options, such as defaultWorldType, also affect the \"server.properties\" file. This option will be prioritized if any conflicts occur.");
+			for (String a : prop.getStringList()) {
+				String[] b = a.split("\\s+");
+				defaultServerProperties.add(Pair.of(b[0], a.substring(b.length)));
+			}
+		}
 
 		maxGamma = (float) CONFIG.getInt("maxGamma", CATEGORY_GAME_OPTIONS, 100, 0, 100, "Sets a maximum brightness level.")
 				/ 100;
