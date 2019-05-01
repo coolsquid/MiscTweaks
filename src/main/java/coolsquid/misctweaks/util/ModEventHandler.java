@@ -126,7 +126,7 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void onSleepCheck(PlayerSleepInBedEvent event) {
 		if (ConfigManager.disableSleep) {
-			event.getEntityPlayer().sendStatusMessage(new TextComponentString("Sleeping has been disabled"), true);
+			event.getEntityPlayer().sendStatusMessage(new TextComponentString("Sleep has been disabled"), true);
 			event.setResult(SleepResult.OTHER_PROBLEM);
 		}
 	}
@@ -134,9 +134,13 @@ public class ModEventHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onTooltip(ItemTooltipEvent event) {
-		if (ConfigManager.disableSleep && event.getItemStack() != null
+		if (event.getItemStack() != null
 				&& event.getItemStack().getItem() instanceof ItemBed) {
-			event.getToolTip().add("Unusable");
+			if (ConfigManager.disableSleep) {
+				event.getToolTip().add("Sleep has been disabled");
+			} else if (ConfigManager.preventPlayerSpawnChange || ConfigManager.preventPlayerBedSpawnChange) {
+				event.getToolTip().add("Sleeping won't change your spawn point");
+			}
 		}
 	}
 
