@@ -51,11 +51,11 @@ public class ConfigManager {
 	public static String defaultChunkProviderSettings;
 	public static boolean forceChunkProviderSettings;
 
-	public static int generateStructures = -1;
+	public static int generateStructures;
 	public static boolean forceDefaultGenerateStructuresOption;
-	public static int cheats = -1;
+	public static int cheats;
 	public static boolean forceDefaultCheatsOption;
-	public static int bonusChest = -1;
+	public static int bonusChest;
 	public static boolean forceDefaultBonusChestOption;
 	
 	public static String defaultSeed;
@@ -79,7 +79,7 @@ public class ConfigManager {
 	public static float hungerStarveDamage;
 
 	public static boolean retainOldBranding;
-	public static String[] branding = {};
+	public static String[] branding;
 
 	public static boolean removeRealmsButton;
 	public static boolean removeCopyrightText;
