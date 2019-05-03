@@ -80,7 +80,7 @@ public class OptionTweaks {
 		@SubscribeEvent
 		public void onGuiOpen(GuiOpenEvent event) {
 			if (event.getGui() instanceof GuiMainMenu) {
-				if (ConfigManager.maxGamma < 1) {
+				if (ConfigManager.maxGamma > -1) {
 					GameSettings.Options.GAMMA.setValueMax(ConfigManager.maxGamma);
 					if (ConfigManager.maxGamma < Minecraft.getMinecraft().gameSettings.gammaSetting) {
 						Minecraft.getMinecraft().gameSettings.setOptionFloatValue(Options.GAMMA, ConfigManager.maxGamma);
@@ -88,7 +88,7 @@ public class OptionTweaks {
 				} else {
 					GameSettings.Options.GAMMA.setValueMax(1);
 				}
-				if (ConfigManager.maxRenderDistance < 32) {
+				if (ConfigManager.maxRenderDistance > -1) {
 					GameSettings.Options.RENDER_DISTANCE.setValueMax(ConfigManager.maxRenderDistance);
 					if (ConfigManager.maxRenderDistance < Minecraft.getMinecraft().gameSettings.renderDistanceChunks) {
 						Minecraft.getMinecraft().gameSettings.setOptionValue(Options.RENDER_DISTANCE,
@@ -182,7 +182,7 @@ public class OptionTweaks {
 					((GuiMainMenu) event.getGui()).widthCopyright = 0;
 					((GuiMainMenu) event.getGui()).widthCopyrightRest = event.getGui().width + 1;
 				}
-			} else if (event.getGui() instanceof GuiVideoSettings && ConfigManager.maxGamma < 1) {
+			} else if (event.getGui() instanceof GuiVideoSettings && ConfigManager.maxGamma > -1) {
 				GuiOptionsRowList list = ReflectionHelper.getPrivateValue(GuiVideoSettings.class,
 						(GuiVideoSettings) event.getGui(), 3);
 				if (list != null) {

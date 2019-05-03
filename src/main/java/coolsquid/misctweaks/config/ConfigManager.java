@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import com.google.common.collect.Sets;
 
 import coolsquid.misctweaks.MiscTweaks;
+import coolsquid.misctweaks.util.Expression;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -41,47 +42,47 @@ public class ConfigManager {
 	public static final String CATEGORY_CLIENT = "client";
 	public static final String CATEGORY_MISCELLANEOUS = "miscellaneous";
 
-	public static String defaultDifficulty = "";
+	public static String defaultDifficulty;
 	public static Set<String> allowedDifficulties;
-	public static String defaultGamemode = "";
+	public static String defaultGamemode;
 	public static Set<String> allowedGamemodes;
-	public static String defaultWorldType = "";
+	public static String defaultWorldType;
 	public static Set<String> allowedWorldTypes;
-	public static String defaultChunkProviderSettings = "";
-	public static boolean forceChunkProviderSettings = false;
+	public static String defaultChunkProviderSettings;
+	public static boolean forceChunkProviderSettings;
 
 	public static int generateStructures = -1;
-	public static boolean forceDefaultGenerateStructuresOption = false;
+	public static boolean forceDefaultGenerateStructuresOption;
 	public static int cheats = -1;
-	public static boolean forceDefaultCheatsOption = false;
+	public static boolean forceDefaultCheatsOption;
 	public static int bonusChest = -1;
-	public static boolean forceDefaultBonusChestOption = false;
+	public static boolean forceDefaultBonusChestOption;
 	
 	public static String defaultSeed;
-	public static boolean forceSeed = false;
+	public static boolean forceSeed;
 	
 	public static List<Pair<String, String>> defaultServerProperties;
 
 	public static long newWorldTime;
 	public static String newWorldWeather;
 
-	public static float maxGamma = 1;
-	public static int maxRenderDistance = 32;
+	public static float maxGamma;
+	public static int maxRenderDistance;
 
 	public static Map<String, String> gameRules;
 	public static Set<String> forcedGameRules;
 
-	public static boolean netherLavaPockets = true;
+	public static boolean netherLavaPockets;
 
-	public static float hungerHealthRegen = 1.0F;
-	public static float hungerExhaustionRegen = 3.0F;
-	public static float hungerStarveDamage = 1.0F;
+	public static float hungerHealthRegen;
+	public static float hungerExhaustionRegen;
+	public static float hungerStarveDamage;
 
-	public static boolean retainOldBranding = true;
+	public static boolean retainOldBranding;
 	public static String[] branding = {};
 
-	public static boolean removeRealmsButton = false;
-	public static boolean removeCopyrightText = false;
+	public static boolean removeRealmsButton;
+	public static boolean removeCopyrightText;
 
 	public static Set<ElementType> disabledOverlays;
 
@@ -90,18 +91,18 @@ public class ConfigManager {
 	public static int creeperFuseTime;
 	public static int creeperExplosionRadius;
 
-	public static float drowningDamage = 1.0F;
+	public static Map<String, Expression> damageModifiers;
 
-	public static boolean disableSleep = false;
-	public static boolean preventPlayerSpawnChange = false;
-	public static boolean preventPlayerBedSpawnChange = false;
+	public static boolean disableSleep;
+	public static boolean preventPlayerSpawnChange;
+	public static boolean preventPlayerBedSpawnChange;
 	
 	public static HashSet<String> disabledFireSources;
 	public static HashSet<String> newFireSources;
 	
-	public static int chestSize = 27;
-	public static int enderChestSize = 27;
-	public static int minecartChestSize = 27;
+	public static int chestSize;
+	public static int enderChestSize;
+	public static int minecartChestSize;
 
 	public static boolean enableConfigGui;
 
@@ -174,10 +175,12 @@ public class ConfigManager {
 			}
 		}
 
-		maxGamma = (float) CONFIG.getInt("maxGamma", CATEGORY_GAME_OPTIONS, 100, 0, 100, "Sets a maximum brightness level.")
+		migrateOldCrap5();
+		maxGamma = (float) CONFIG.getInt("maxGamma", CATEGORY_GAME_OPTIONS, -1, -1, 100, "Sets a maximum brightness level. -1 does nothing.")
 				/ 100;
-		maxRenderDistance = CONFIG.getInt("maxRenderDistance", CATEGORY_GAME_OPTIONS, 32, 2, 32,
-				"Sets a maximum render distance.");
+		if (maxGamma < 0) { maxGamma = -1; } // TODO next major version: make the maxGamma option a float
+		maxRenderDistance = CONFIG.getInt("maxRenderDistance", CATEGORY_GAME_OPTIONS, 32, -1, 32,
+				"Sets a maximum render distance. -1 does nothing. Should be at least 2!");
 
 		newWorldTime = CONFIG.getInt("newWorldTime", CATEGORY_GAME_OPTIONS, -1, -1, 24000, "The starting time of newly created worlds. Can be combined with \"doDaylightCycle false\" in the \"gameRules\" option to indefinitely stay at the specified time.");
 		newWorldWeather = CONFIG.getString("newWorldWeather", CATEGORY_GAME_OPTIONS, "", "The starting weather of newly created worlds. Either \"clear\", \"rain\" or \"thunder\". Can be combined with \"doWeatherCycle false\" in the \"gameRules\" option to indefinitely retain the specified weather.");
@@ -197,7 +200,7 @@ public class ConfigManager {
 			}
 		}
 
-		netherLavaPockets = CONFIG.getBoolean("netherLavaPockets", CATEGORY_WORLD, netherLavaPockets,
+		netherLavaPockets = CONFIG.getBoolean("netherLavaPockets", CATEGORY_WORLD, true,
 				"Set to false to disable the random lava pockets in the Nether.");
 		fireTickRate = CONFIG.getInt("fireTickRate", CATEGORY_WORLD, 30, 0, Integer.MAX_VALUE,
 				"The number of world ticks for each fire tick. Decrease for fire to spread and burn faster.");
@@ -210,19 +213,19 @@ public class ConfigManager {
 		creeperExplosionRadius = CONFIG.getInt("creeperExplosionRadius", CATEGORY_WORLD, 3, 0, 64,
 				"The approximate radius of creeper explosions.");
 
-		hungerHealthRegen = CONFIG.getFloat("healthRegen", CATEGORY_HUNGER, hungerHealthRegen, Float.MIN_VALUE,
+		hungerHealthRegen = CONFIG.getFloat("healthRegen", CATEGORY_HUNGER, -1, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar. Requires AppleCore.");
-		hungerExhaustionRegen = CONFIG.getFloat("exhaustionRegen", CATEGORY_HUNGER, hungerExhaustionRegen, Float.MIN_VALUE,
+		hungerExhaustionRegen = CONFIG.getFloat("exhaustionRegen", CATEGORY_HUNGER, -1, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of exhaustion regen from having a full hunger bar. Requires AppleCore.");
-		hungerStarveDamage = CONFIG.getFloat("starveDamage", CATEGORY_HUNGER, hungerStarveDamage, Float.MIN_VALUE,
+		hungerStarveDamage = CONFIG.getFloat("starveDamage", CATEGORY_HUNGER, -1, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of damage dealt by starvation.");
 
-		branding = CONFIG.getStringList("branding", CATEGORY_CLIENT, branding, "Changes the text in the lower left corner.");
-		retainOldBranding = CONFIG.getBoolean("brandingRetainOld", CATEGORY_CLIENT, retainOldBranding,
+		branding = CONFIG.getStringList("branding", CATEGORY_CLIENT, new String[0], "Changes the text in the lower left corner.");
+		retainOldBranding = CONFIG.getBoolean("brandingRetainOld", CATEGORY_CLIENT, true,
 				"Whether to retain the old branding and append the new one, or to replace the old one completely.");
-		removeRealmsButton = CONFIG.getBoolean("removeRealmsButton", CATEGORY_CLIENT, removeRealmsButton,
+		removeRealmsButton = CONFIG.getBoolean("removeRealmsButton", CATEGORY_CLIENT, false,
 				"Removes the realms button from the main menu.");
-		removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", CATEGORY_CLIENT, removeCopyrightText,
+		removeCopyrightText = CONFIG.getBoolean("removeCopyrightText", CATEGORY_CLIENT, false,
 				"Removes the copyright information from the main menu.");
 		
 		disabledOverlays = new HashSet<>();
@@ -240,10 +243,14 @@ public class ConfigManager {
 			}
 		}
 
-		drowningDamage = CONFIG.getFloat("drowningDamage", CATEGORY_MISCELLANEOUS, drowningDamage, Float.MIN_VALUE,
-				Float.MAX_VALUE, "The amount of damage dealt by drowning.");
+		migrateOldCrap4();
+		damageModifiers = new HashMap<>();
+		for (String s : CONFIG.getStringList("damageModifiers", CATEGORY_MISCELLANEOUS, new String[0], "Modifies the damage dealt by the specified damage sources. Format: \"damageSourceName = x * sqrt(16) - 5\", where 'x' is the unmodified damage. Supports addition, subtraction, multiplication, division, parentheses, sin, cos, tan and sqrt.")) {
+			String[] parts = s.split("=");
+			damageModifiers.put(parts[0], Expression.eval(parts[1]));
+		}
 
-		disableSleep = CONFIG.getBoolean("disableSleep", CATEGORY_MISCELLANEOUS, disableSleep,
+		disableSleep = CONFIG.getBoolean("disableSleep", CATEGORY_MISCELLANEOUS, false,
 				"Disables all forms of beds and sleeping bags.");
 		preventPlayerSpawnChange = CONFIG.getBoolean("preventPlayerSpawnChange", CATEGORY_MISCELLANEOUS, false,
 				"Prevents players from setting new spawn points (with or without beds). This will completely disable custom player spawns, so all players will spawn at the world's spawn point.");
@@ -289,12 +296,35 @@ public class ConfigManager {
 		}
 	}
 
-	private static void moveCategory(String oldCategoryName, String newCategoryName) {
-		ConfigCategory oldCategory = CONFIG.getCategory(oldCategoryName);
-		for (String propName : new ArrayList<>(oldCategory.keySet())) {
-			CONFIG.moveProperty(oldCategoryName, propName, newCategoryName);
+	private static void migrateOldCrap5() {
+		{
+			Property prop = CONFIG.get(CATEGORY_GAME_OPTIONS, "maxGamma", -1);
+			if (prop.getInt() == 100) {
+				prop.set(-1);
+			}
 		}
-		CONFIG.removeCategory(oldCategory);
+		{
+			Property prop = CONFIG.get(CATEGORY_GAME_OPTIONS, "maxRenderDistance", -1);
+			if (prop.getInt() == 32) {
+				prop.set(-1);
+			}
+		}
+	}
+
+	private static void migrateOldCrap4() {
+		if (CONFIG.hasKey(CATEGORY_MISCELLANEOUS, "drowningDamage")) {
+			Property prop = CONFIG.get(CATEGORY_MISCELLANEOUS, "drowningDamage", "");
+			if (prop.getDouble() != 1.0D) {
+				Property prop2 = CONFIG.get(CATEGORY_MISCELLANEOUS, "damageModifiers", new String[0]);
+				String[] s = new String[prop2.getStringList().length + 1];
+				for (int i = 0; i < prop2.getStringList().length; i++) {
+					s[i] = prop2.getStringList()[i];
+				}
+				s[prop2.getStringList().length] = "drown=" + prop.getDouble();
+				prop2.set(s);
+			}
+			CONFIG.getCategory(CATEGORY_MISCELLANEOUS).remove("drowningDamage");
+		}
 	}
 
 	private static void migrateOldCrap3() {

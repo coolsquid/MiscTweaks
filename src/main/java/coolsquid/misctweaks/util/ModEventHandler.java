@@ -118,8 +118,9 @@ public class ModEventHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onLivingHurt(LivingHurtEvent event) {
-		if (event.getSource() == DamageSource.DROWN && ConfigManager.drowningDamage != 1 && event.getAmount() != 1) {
-			event.setAmount(ConfigManager.drowningDamage);
+		Expression e = ConfigManager.damageModifiers.get(event.getSource().damageType);
+		if (e != null) {
+			event.setAmount((float) e.eval(event.getAmount()));
 		}
 	}
 
