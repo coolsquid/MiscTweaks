@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 
 import coolsquid.misctweaks.MiscTweaks;
 import coolsquid.misctweaks.util.Expression;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -82,6 +83,9 @@ public class ConfigManager {
 	public static int creeperExplosionRadius;
 
 	public static Map<String, Expression> damageModifiers;
+
+	public static Set<ResourceLocation> infiniteLiquids;
+	public static Set<ResourceLocation> finiteLiquids;
 
 	public static boolean disableSleep;
 	public static boolean preventPlayerSpawnChange;
@@ -238,6 +242,15 @@ public class ConfigManager {
 		for (String s : CONFIG.getStringList("damageModifiers", CATEGORY_MISCELLANEOUS, new String[0], "Modifies the damage dealt by the specified damage sources. Format: \"damageSourceName = x * sqrt(16) - 5\", where 'x' is the unmodified damage. Supports addition, subtraction, multiplication, division, parentheses, sin, cos, tan and sqrt.")) {
 			String[] parts = s.split("=");
 			damageModifiers.put(parts[0], Expression.eval(parts[1]));
+		}
+		
+		infiniteLiquids = new HashSet<>();
+		for (String s : CONFIG.getStringList("infiniteLiquids", CATEGORY_MISCELLANEOUS, new String[0], "A list of flowing liquids that should automatically become source blocks when adjacent to at least two other source blocks of the same type. Note that the name of the flowing liquid does not necessarily correspond with the name of its static counterpart. For example, lava should be entered as \"flowing_lava\".")) {
+			infiniteLiquids.add(new ResourceLocation(s));
+		}
+		finiteLiquids = new HashSet<>();
+		for (String s : CONFIG.getStringList("finiteLiquids", CATEGORY_MISCELLANEOUS, new String[0], "A list of flowing liquids that should not automatically become source blocks when adjacent to at least two other source blocks of the same type. Note that the name of the flowing liquid does not necessarily correspond with the name of its static counterpart. For example, water should be entered as \"flowing_water\".")) {
+			finiteLiquids.add(new ResourceLocation(s));
 		}
 
 		disableSleep = CONFIG.getBoolean("disableSleep", CATEGORY_MISCELLANEOUS, false,

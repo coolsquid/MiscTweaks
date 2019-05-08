@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.item.ItemBed;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -22,6 +23,7 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerSetSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
+import net.minecraftforge.event.world.BlockEvent.CreateFluidSourceEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.Optional.Method;
@@ -175,6 +177,16 @@ public class ModEventHandler {
 			if (!ConfigManager.defaultDifficulty.isEmpty()) {
 				event.getWorld().getWorldInfo().setDifficulty(EnumDifficulty.valueOf(ConfigManager.defaultDifficulty));
 			}
+		}
+	}
+
+	@SubscribeEvent
+	public void onCreateSourceBlock(CreateFluidSourceEvent event) {
+		ResourceLocation name = event.getState().getBlock().getRegistryName();
+		if (ConfigManager.infiniteLiquids.contains(name)) {
+			event.setResult(Result.ALLOW);
+		} else if (ConfigManager.finiteLiquids.contains(name)) {
+			event.setResult(Result.DENY);
 		}
 	}
 }
