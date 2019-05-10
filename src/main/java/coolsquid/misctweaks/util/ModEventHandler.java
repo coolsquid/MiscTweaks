@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import squeek.applecore.api.hunger.HealthRegenEvent;
@@ -187,6 +188,13 @@ public class ModEventHandler {
 			event.setResult(Result.ALLOW);
 		} else if (ConfigManager.finiteLiquids.contains(name)) {
 			event.setResult(Result.DENY);
+		}
+	}
+
+	@SubscribeEvent
+	public void onPlayerRespawn(PlayerRespawnEvent event) {
+		if (ConfigManager.respawnTime > -1 && !event.isEndConquered() && !event.player.world.isRemote && event.player.world.playerEntities.size() == 1 && event.player.world.getGameRules().getBoolean("doDaylightCycle")) {
+			event.player.world.setWorldTime(ConfigManager.respawnTime);
 		}
 	}
 }

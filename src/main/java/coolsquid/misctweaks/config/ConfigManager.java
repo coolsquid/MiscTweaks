@@ -56,6 +56,7 @@ public class ConfigManager {
 
 	public static long newWorldTime;
 	public static String newWorldWeather;
+	public static long respawnTime;
 
 	public static float maxGamma;
 	public static int maxRenderDistance;
@@ -178,6 +179,7 @@ public class ConfigManager {
 
 		newWorldTime = CONFIG.getInt("newWorldTime", CATEGORY_GAME_OPTIONS, -1, -1, 24000, "The starting time of newly created worlds. Can be combined with \"doDaylightCycle false\" in the \"gameRules\" option to indefinitely stay at the specified time.");
 		newWorldWeather = CONFIG.getString("newWorldWeather", CATEGORY_GAME_OPTIONS, "", "The starting weather of newly created worlds. Either \"clear\", \"rain\" or \"thunder\". Can be combined with \"doWeatherCycle false\" in the \"gameRules\" option to indefinitely retain the specified weather.");
+		respawnTime = CONFIG.getInt("respawnTime", CATEGORY_GAME_OPTIONS, -1, -1, 24000, "Changes the world time to the given value when the player respawns. Only applies if the player is alone in the world and the gamerule \"doDaylightCycle\" is true.");
 
 		{
 			gameRules = new HashMap<>();
