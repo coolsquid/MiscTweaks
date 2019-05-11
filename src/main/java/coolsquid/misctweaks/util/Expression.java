@@ -94,6 +94,9 @@ public interface Expression {
 		                else if (func.equals("sin")) e = (x) -> Math.sin(Math.toRadians(a.eval(x)));
 		                else if (func.equals("cos")) e = (x) -> Math.cos(Math.toRadians(a.eval(x)));
 		                else if (func.equals("tan")) e = (x) -> Math.tan(Math.toRadians(a.eval(x)));
+		                else if (func.equals("random")) e = (x) -> Math.random() * a.eval(x);
+		                else if (func.equals("round")) e = (x) -> Math.round(a.eval(x));
+		                else if (func.equals("ceil")) e = (x) -> Math.ceil(a.eval(x));
 		                else throw new RuntimeException("Unknown function: " + func);
 	            	}
 	            } else {
