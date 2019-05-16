@@ -87,8 +87,8 @@ public class MiscTweaks {
 			for (Pair<String, String> p : ConfigManager.defaultServerProperties) {
 				properties.setProperty(p.getLeft(), p.getRight());
 			}
-			try {
-				properties.store(new FileWriter(settingsFile), "");
+			try (FileWriter writer = new FileWriter(settingsFile)) {
+				properties.store(writer, "");
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
