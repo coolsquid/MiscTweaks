@@ -33,7 +33,7 @@ public class MiscTweaks {
 	public static final String NAME = "MiscTweaks";
 	public static final String VERSION = "1.5.0";
 	public static final String DEPENDENCIES = "required-after:forge@[14.21.1.2387,);after:applecore";
-	public static final String UPDATE_JSON = "https://gist.githubusercontent.com/coolsquid/15f17615b4a2d493ec38399c4ec6489f/raw/e493499854250efee3f2adab276a1e15d8cd9f7d/misctweaks.json";
+	public static final String UPDATE_JSON = "https://gist.githubusercontent.com/coolsquid/15f17615b4a2d493ec38399c4ec6489f/raw/misctweaks.json";
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
