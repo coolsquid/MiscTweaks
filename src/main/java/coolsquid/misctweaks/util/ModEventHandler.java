@@ -102,18 +102,17 @@ public class ModEventHandler {
 
 	@SubscribeEvent
 	public void onEntitySpawn(EntityJoinWorldEvent event) {
-		if (event.getEntity() instanceof EntityTNTPrimed && ConfigManager.tntFuseTime != 80) {
+		if (event.getEntity() instanceof EntityTNTPrimed && ConfigManager.tntFuseTime != -1) {
 			EntityTNTPrimed tnt = (EntityTNTPrimed) event.getEntity();
 			if (tnt.getFuse() == 80) {
 				tnt.setFuse(ConfigManager.tntFuseTime);
 			}
-		} else if (event.getEntity() instanceof EntityCreeper
-				&& (ConfigManager.creeperFuseTime != 30 || ConfigManager.creeperExplosionRadius != 3)) {
+		} else if (event.getEntity() instanceof EntityCreeper) {
 			EntityCreeper creeper = (EntityCreeper) event.getEntity();
-			if (creeper.fuseTime == 30) {
+			if (ConfigManager.creeperFuseTime != -1 && creeper.fuseTime == 30) {
 				creeper.fuseTime = ConfigManager.creeperFuseTime;
 			}
-			if (creeper.explosionRadius == 3) {
+			if (ConfigManager.creeperExplosionRadius != -1 && creeper.explosionRadius == 3) {
 				creeper.explosionRadius = ConfigManager.creeperExplosionRadius;
 			}
 		}

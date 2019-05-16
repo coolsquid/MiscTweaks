@@ -25,7 +25,7 @@ import net.minecraftforge.common.config.Property;
 
 public class ConfigManager {
 
-	public static final Configuration CONFIG = new Configuration(new File("config/MiscTweaks.cfg"));
+	public static final Configuration CONFIG = new Configuration(new File("config/MiscTweaks.cfg"), MiscTweaks.VERSION);
 
 	public static final String CATEGORY_GAME_OPTIONS = "game_options";
 	public static final String CATEGORY_WORLD = "world";
@@ -202,12 +202,12 @@ public class ConfigManager {
 				"The number of world ticks for each fire tick. Decrease for fire to spread and burn faster.");
 		disabledFireSources = Sets.newHashSet(CONFIG.getStringList("fireSourcesDisabled", CATEGORY_WORLD, new String[0], "A fire source is a block that sustains fire indefinitely. In Vanilla, netherrack and magma blocks are considered fire sources. To disable a fire source, add its block ID to the list."));
 		newFireSources = Sets.newHashSet(CONFIG.getStringList("fireSourcesNew", CATEGORY_WORLD, new String[0], "A fire source is a block that sustains fire indefinitely. In Vanilla, netherrack and magma blocks are considered fire sources. To make a block a fire source, add its ID to the list."));
-		tntFuseTime = CONFIG.getInt("tntFuseTime", CATEGORY_WORLD, 80, 0, Integer.MAX_VALUE,
-				"The fuse time of TNT, in ticks.");
-		creeperFuseTime = CONFIG.getInt("creeperFuseTime", CATEGORY_WORLD, 30, 1, Integer.MAX_VALUE,
-				"The fuse time of creepers, in ticks. Has to be at least 1, as otherwise the creepers would explode immediately after spawning.");
-		creeperExplosionRadius = CONFIG.getInt("creeperExplosionRadius", CATEGORY_WORLD, 3, 0, 64,
-				"The approximate radius of creeper explosions.");
+		tntFuseTime = CONFIG.getInt("tntFuseTime", CATEGORY_WORLD, -1, -1, Integer.MAX_VALUE,
+				"The fuse time of TNT, in ticks. 80 = Vanilla, -1 = no effect.");
+		creeperFuseTime = CONFIG.getInt("creeperFuseTime", CATEGORY_WORLD, -1, -1, Integer.MAX_VALUE,
+				"The fuse time of creepers, in ticks. Has to be at least 1, as otherwise the creepers would explode immediately after spawning. 30 = Vanilla, -1 = no effect.");
+		creeperExplosionRadius = CONFIG.getInt("creeperExplosionRadius", CATEGORY_WORLD, -1, -1, 64,
+				"The approximate radius of creeper explosions. 3 = Vanilla, -1 = no effect.");
 
 		hungerHealthRegen = CONFIG.getFloat("healthRegen", CATEGORY_HUNGER, -1, Float.MIN_VALUE,
 				Float.MAX_VALUE, "The amount of health regen from having a full hunger bar. Requires AppleCore.");
